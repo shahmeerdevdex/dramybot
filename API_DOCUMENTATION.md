@@ -384,6 +384,7 @@ response = requests.post(
         "user_id": "paid456",
         "user_type": "paid",
         "chat_mode": "dream",
+        
         "feature": "dream_interpretation",
         "last_messages": ["Hello"],
         "user_prompt": "Interpret this dream: I was swimming in an ocean of stars."

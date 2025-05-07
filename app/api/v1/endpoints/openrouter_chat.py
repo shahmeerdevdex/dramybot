@@ -90,13 +90,36 @@ class AnalysisRequest(BaseModel):
 
 class AnalysisResponse(BaseModel):
     summary: str
-    keywords: Dict[str, int]  # Dictionary of keywords and their counts
-    emoji_count: int  # Total count of emojis
-    emojis: Dict[str, int]  # Dictionary of emojis and their counts
-    sentiment: str  # Overall sentiment of the conversation (positive, negative, neutral, or mixed)
+    tones: Dict[str, str]  # Dictionary of emotional tones and their descriptions
+    themes: List[str]  # List of themes identified in the conversation
+    visualSymbols: List[str]  # List of visual symbols identified in the conversation
     
 class ChatResponse(BaseModel):
     response: str
+
+class ProfileMessage(BaseModel):
+    query: str
+    response: str
+    isUser: bool
+
+class ProfileSummaryRequest(BaseModel):
+    user_id: str
+    user_type: UserType
+    messages: List[ProfileMessage]  # List of profile Q&A messages
+    model: Optional[str] = ""  # Model can be empty and will be determined based on user type
+    
+    @validator('messages')
+    def messages_not_empty(cls, v):
+        if not v or len(v) == 0:
+            raise ValueError('messages cannot be empty')
+        return v
+    
+    class Config:
+        populate_by_name = True
+        validate_assignment = True
+
+class ProfileSummaryResponse(BaseModel):
+    summary: str
 
 router = APIRouter()
 
@@ -401,7 +424,7 @@ async def summarize_chat(payload: SummaryRequest):
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_chat(payload: AnalysisRequest):
-    """Analyze chat messages to extract keywords, count them, and identify emojis"""
+    """Analyze chat messages to extract emotional tones, themes, and visual symbols"""
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
     
     # Determine the model based on user type
@@ -413,16 +436,19 @@ async def analyze_chat(payload: AnalysisRequest):
     chat_content = "\n".join(payload.chat_messages)
     
     # Create the system prompt for analysis
-    system_prompt = """You are a chat analysis assistant. Your task is to analyze conversations and extract:
-1. A concise one-line summary
-2. Key emotional and topical keywords (like 'fear', 'anxiety', 'happiness', etc.)
-3. All emojis used in the conversation
+    system_prompt = """You are a chat analysis assistant specializing in emotional and thematic analysis. 
+
+Your task is to analyze conversations and extract:
+1. A concise summary of the conversation
+2. Emotional tones present in the conversation with detailed descriptions
+3. Underlying themes in the conversation
+4. Visual symbols that represent the conversation
 
 Provide your analysis in valid JSON format with these fields:
-- summary: a one-line summary of the conversation
-- keywords: an object with keywords as keys and their counts as values
-- emoji_count: total number of emojis found
-- emojis: an object with emojis as keys and their counts as values
+- summary: A concise summary of the conversation
+- tones: An object with emotional tones as keys and detailed paragraph descriptions as values
+- themes: An array of underlying themes identified in the conversation
+- visualSymbols: An array of visual symbols that represent the conversation
 
 Ensure your response is ONLY the JSON object, nothing else."""
     
@@ -440,7 +466,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
                     "role": "system"
                 },
                 {
-                    "content": f"Analyze the following conversation and extract a summary, keywords (especially emotional ones like fear, anxiety, etc.), and emojis. Also determine the overall sentiment (positive, negative, neutral, or mixed).\n\nReturn ONLY a JSON object with these fields:\n- summary: A one-line summary of the conversation\n- keywords: An object with emotional keywords as keys and their counts as values\n- emoji_count: Total number of emojis found\n- emojis: An object with emojis as keys and their counts as values\n- sentiment: Overall sentiment of the conversation (positive, negative, neutral, or mixed)\n\n{chat_content}",
+                    "content": f"Analyze the following conversation and extract:\n\n1. A concise summary\n2. Emotional tones present (like fear, anxiety, happiness, etc.) with detailed paragraph descriptions for each tone\n3. Underlying themes in the conversation (like 'lack of security', 'anticipation of danger', etc.)\n4. Visual symbols that represent the conversation (like 'rain', 'home', etc.)\n\nReturn ONLY a JSON object with these fields:\n- summary: A concise summary of the conversation\n- tones: An object with emotional tones as keys and detailed paragraph descriptions as values\n- themes: An array of underlying themes identified in the conversation\n- visualSymbols: An array of visual symbols that represent the conversation\n\n{chat_content}",
                     "role": "user"
                 }
             ],
@@ -464,123 +490,123 @@ Ensure your response is ONLY the JSON object, nothing else."""
         # Ensure all required fields are present
         if 'summary' not in analysis:
             analysis['summary'] = "No summary available"
-        if 'keywords' not in analysis:
-            analysis['keywords'] = {}
-        if 'emoji_count' not in analysis:
-            # Count emojis in the original text as a fallback
-            emoji_pattern = re.compile("[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F700-\U0001F77F\U0001F780-\U0001F7FF\U0001F800-\U0001F8FF\U0001F900-\U0001F9FF\U0001FA00-\U0001FA6F\U0001FA70-\U0001FAFF\U00002702-\U000027B0\U000024C2-\U0001F251]")
-            emojis = emoji_pattern.findall(chat_content)
-            analysis['emoji_count'] = len(emojis)
-        if 'emojis' not in analysis:
-            analysis['emojis'] = {}
+        if 'tones' not in analysis:
+            analysis['tones'] = {
+                "neutral": "The conversation has a generally neutral tone without strong emotional elements."
+            }
+        if 'themes' not in analysis:
+            analysis['themes'] = ["general conversation"]
+        if 'visualSymbols' not in analysis:
+            analysis['visualSymbols'] = ["speech bubble"]
             
         return {
             "summary": analysis['summary'],
-            "keywords": analysis['keywords'],
-            "emoji_count": analysis['emoji_count'],
-            "emojis": analysis['emojis'],
-            "sentiment": analysis.get('sentiment', 'neutral')  # Default to neutral if not provided
+            "tones": analysis['tones'],
+            "themes": analysis['themes'],
+            "visualSymbols": analysis['visualSymbols']
         }
     except json.JSONDecodeError:
         # If JSON parsing fails, create a basic analysis manually
-        # Extract emojis
-        emoji_pattern = re.compile("[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F700-\U0001F77F\U0001F780-\U0001F7FF\U0001F800-\U0001F8FF\U0001F900-\U0001F9FF\U0001FA00-\U0001FA6F\U0001FA70-\U0001FAFF\U00002702-\U000027B0\U000024C2-\U0001F251]")
-        emojis = emoji_pattern.findall(chat_content)
-        emoji_dict = {}
-        for emoji in emojis:
-            if emoji in emoji_dict:
-                emoji_dict[emoji] += 1
-            else:
-                emoji_dict[emoji] = 1
-        
-        # Extract potential keywords (enhanced approach with emotional categories)
-        emotional_keywords = {
-            # Anxiety/Fear related
-            "anxiety": ["anxiety", "anxious", "nervous", "worried", "uneasy", "tense", "apprehensive"],
-            "fear": ["fear", "scared", "afraid", "terrified", "frightened", "panic", "dread"],
-            "stress": ["stress", "stressful", "pressure", "strain", "overwhelmed", "burdened"],
-            "worry": ["worry", "concerned", "troubled", "distressed"],
-            
-            # Happiness/Joy related
-            "happiness": ["happy", "happiness", "joyful", "delighted", "pleased", "glad", "content"],
-            "excitement": ["excited", "thrilled", "enthusiastic", "eager", "energetic"],
-            "gratitude": ["grateful", "thankful", "appreciative", "blessed", "appreciated"],
-            "love": ["love", "adore", "cherish", "affection", "fond", "loved"],
-            
-            # Sadness related
-            "sadness": ["sad", "unhappy", "depressed", "gloomy", "miserable", "melancholy"],
-            "disappointment": ["disappointed", "letdown", "disheartened", "dismayed"],
-            "grief": ["grief", "mourning", "sorrow", "heartbroken", "devastated"],
-            "loneliness": ["lonely", "alone", "isolated", "abandoned", "neglected"],
-            
-            # Anger related
-            "anger": ["angry", "mad", "furious", "outraged", "irritated", "annoyed"],
-            "frustration": ["frustrated", "exasperated", "aggravated", "impatient"],
-            "resentment": ["resentful", "bitter", "indignant", "offended"],
-            
-            # Confidence/Doubt related
-            "confidence": ["confident", "assured", "certain", "self-assured", "bold"],
-            "doubt": ["doubt", "uncertain", "unsure", "hesitant", "skeptical", "confused"],
-            
-            # Fatigue/Energy related
-            "fatigue": ["tired", "exhausted", "drained", "weary", "fatigued"],
-            "energy": ["energetic", "lively", "vibrant", "invigorated", "refreshed"]
-        }
-        
-        # Flatten the list for simple keyword matching
-        common_emotional_keywords = []
-        for category, words in emotional_keywords.items():
-            common_emotional_keywords.extend(words)
-        
-        keyword_dict = {}
-        for keyword in common_emotional_keywords:
-            # Case insensitive count
-            count = len(re.findall(r'\b' + re.escape(keyword) + r'\b', chat_content.lower()))
-            if count > 0:
-                keyword_dict[keyword] = count
-        
-        # Generate a simple summary using the summarize endpoint
-        summary_request = SummaryRequest(
-            user_id=payload.user_id,
-            user_type=payload.user_type,
-            chat_messages=payload.chat_messages
-        )
-        summary_response = await summarize_chat(summary_request)
-        
-        # Determine sentiment based on keyword counts
-        sentiment = "neutral"
-        positive_categories = ["happiness", "excitement", "gratitude", "love", "confidence", "energy"]
-        negative_categories = ["anxiety", "fear", "stress", "worry", "sadness", "disappointment", "grief", "loneliness", "anger", "frustration", "resentment", "doubt", "fatigue"]
-        
-        # Count occurrences of words in each category
-        positive_count = 0
-        negative_count = 0
-        for category in positive_categories:
-            for word in emotional_keywords.get(category, []):
-                positive_count += len(re.findall(r'\b' + re.escape(word) + r'\b', chat_content.lower()))
-        
-        for category in negative_categories:
-            for word in emotional_keywords.get(category, []):
-                negative_count += len(re.findall(r'\b' + re.escape(word) + r'\b', chat_content.lower()))
-        
-        # Determine overall sentiment
-        if positive_count > 0 and negative_count > 0:
-            if positive_count > negative_count * 2:
-                sentiment = "positive"
-            elif negative_count > positive_count * 2:
-                sentiment = "negative"
-            else:
-                sentiment = "mixed"
-        elif positive_count > 0:
-            sentiment = "positive"
-        elif negative_count > 0:
-            sentiment = "negative"
-        
         return {
-            "summary": summary_response.summary,
-            "keywords": keyword_dict,
-            "emoji_count": len(emojis),
-            "emojis": emoji_dict,
-            "sentiment": sentiment
+            "summary": "A conversation between two or more people.",
+            "tones": {
+                "neutral": "The conversation has a generally neutral tone without strong emotional elements.",
+                "informative": "The conversation appears to be primarily focused on sharing information rather than expressing strong emotions."
+            },
+            "themes": ["general conversation", "information exchange"],
+            "visualSymbols": ["speech bubble", "conversation"]
         }
+        
+        # This is the end of the analyze_chat function
+
+@router.post("/profile-summary", response_model=ProfileSummaryResponse)
+async def profile_summary(payload: ProfileSummaryRequest):
+    """
+    Generate a summary of a dreamer's profile based on Q&A messages.
+    
+    This endpoint takes a series of questions and answers about a dreamer's profile
+    and generates a concise summary of the profile.
+    
+    Args:
+        payload: The profile summary request payload containing user information and profile messages
+    
+    Returns:
+        ProfileSummaryResponse: A summary of the dreamer's profile
+    """
+    # Get the OpenRouter API key from environment variables
+    OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+    if not OPENROUTER_API_KEY:
+        raise HTTPException(status_code=500, detail="OpenRouter API key not configured")
+    
+    # Determine the model to use based on user type
+    if payload.model and payload.model.strip() != "":
+        model = payload.model
+    elif payload.user_type == UserType.PAID:
+        model = "anthropic/claude-3-sonnet"
+    else:
+        model = "anthropic/claude-3-haiku"
+    
+    # Format the messages for the prompt
+    formatted_messages = []
+    for msg in payload.messages:
+        if msg.isUser:
+            formatted_messages.append(f"User: {msg.response}")
+        else:
+            formatted_messages.append(f"Question: {msg.query}")
+    
+    profile_content = "\n".join(formatted_messages)
+    
+    # Create the system prompt for profile summary
+    system_prompt = """You are a profile summarization assistant. 
+    
+Your task is to analyze a series of questions and answers about a person's profile and generate a concise, insightful summary that captures the essence of who they are.
+
+Provide your summary in valid JSON format with this field:
+- summary: A concise summary of the person's profile based on the Q&A
+
+Ensure your response is ONLY the JSON object, nothing else."""
+    
+    # Chat completion request
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}"
+        },
+        json={
+            "model": model,
+            "messages": [
+                {
+                    "content": system_prompt,
+                    "role": "system"
+                },
+                {
+                    "content": f"Based on the following questions and answers about a person's profile, generate a concise summary that captures the essence of who they are. Return ONLY a JSON object with a 'summary' field.\n\n{profile_content}",
+                    "role": "user"
+                }
+            ],
+            "temperature": 0.3  # Lower temperature for more focused summary
+        },
+    )
+    
+    response.raise_for_status()
+    response_data = response.json()
+    summary_text = response_data["choices"][0]["message"]["content"]
+    
+    # Extract the JSON from the response
+    # Sometimes the model might wrap the JSON in markdown code blocks or add text before/after
+    json_match = re.search(r'\{.*\}', summary_text, re.DOTALL)
+    if json_match:
+        summary_text = json_match.group(0)
+    
+    try:
+        summary_data = json.loads(summary_text)
+        
+        # Ensure the summary field is present
+        if 'summary' not in summary_data:
+            summary_data['summary'] = "No summary available for this profile."
+            
+        return {"summary": summary_data['summary']}
+    except json.JSONDecodeError:
+        # If JSON parsing fails, create a basic summary
+        return {"summary": "A profile of an individual based on questions and answers."}
 
