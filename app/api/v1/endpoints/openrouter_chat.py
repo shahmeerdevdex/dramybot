@@ -123,7 +123,7 @@ class ProfileSummaryData(BaseModel):
 
 class ProfileSummaryResponse(BaseModel):
     statusCode: int = 200
-    messge: str = "fetch sucessfully"
+    message: str = "fetch sucessfully"
     data: ProfileSummaryData
 
 router = APIRouter()
@@ -612,7 +612,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
             
         return {
             "statusCode": 200,
-            "messge": "fetch sucessfully",
+            "message": "fetch sucessfully",
             "data": {
                 "summary": summary_data['summary']
             }
@@ -621,7 +621,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
         # If JSON parsing fails, create a basic summary
         return {
             "statusCode": 200,
-            "messge": "fetch sucessfully",
+            "message": "fetch sucessfully",
             "data": {
                 "summary": "A profile of an individual based on questions and answers."
             }
