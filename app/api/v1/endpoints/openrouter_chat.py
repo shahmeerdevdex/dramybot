@@ -118,8 +118,13 @@ class ProfileSummaryRequest(BaseModel):
         populate_by_name = True
         validate_assignment = True
 
-class ProfileSummaryResponse(BaseModel):
+class ProfileSummaryData(BaseModel):
     summary: str
+
+class ProfileSummaryResponse(BaseModel):
+    statusCode: int = 200
+    messge: str = "fetch sucessfully"
+    data: ProfileSummaryData
 
 router = APIRouter()
 
@@ -605,8 +610,20 @@ Ensure your response is ONLY the JSON object, nothing else."""
         if 'summary' not in summary_data:
             summary_data['summary'] = "No summary available for this profile."
             
-        return {"summary": summary_data['summary']}
+        return {
+            "statusCode": 200,
+            "messge": "fetch sucessfully",
+            "data": {
+                "summary": summary_data['summary']
+            }
+        }
     except json.JSONDecodeError:
         # If JSON parsing fails, create a basic summary
-        return {"summary": "A profile of an individual based on questions and answers."}
+        return {
+            "statusCode": 200,
+            "messge": "fetch sucessfully",
+            "data": {
+                "summary": "A profile of an individual based on questions and answers."
+            }
+        }
 
