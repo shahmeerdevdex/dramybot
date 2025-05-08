@@ -53,49 +53,69 @@ class ChatRequest(BaseModel):
         populate_by_name = True
         validate_assignment = True
 
+class MessageItem(BaseModel):
+    query: str
+    response: str
+    isUser: bool
+
 class SummaryRequest(BaseModel):
     user_id: str
     user_type: UserType
-    chat_messages: List[str]  # List of chat messages to summarize
+    messages: List[MessageItem]  # List of chat messages to summarize
     model: Optional[str] = ""  # Model can be empty and will be determined based on user type
     
-    @validator('chat_messages')
-    def chat_messages_not_empty(cls, v):
+    @validator('messages')
+    def messages_not_empty(cls, v):
         if not v or len(v) == 0:
-            raise ValueError('chat_messages cannot be empty')
+            raise ValueError('messages cannot be empty')
         return v
     
     class Config:
         populate_by_name = True
         validate_assignment = True
 
-class SummaryResponse(BaseModel):
+class SummaryResponseData(BaseModel):
     summary: str
-    
+
+class SummaryResponse(BaseModel):
+    statusCode: int = 200
+    message: str = "fetch sucessfully"
+    data: SummaryResponseData
+
 class AnalysisRequest(BaseModel):
     user_id: str
     user_type: UserType
-    chat_messages: List[str]  # List of chat messages to analyze
+    messages: List[MessageItem]  # List of chat messages to analyze
     model: Optional[str] = ""  # Model can be empty and will be determined based on user type
     
-    @validator('chat_messages')
-    def chat_messages_not_empty(cls, v):
+    @validator('messages')
+    def messages_not_empty(cls, v):
         if not v or len(v) == 0:
-            raise ValueError('chat_messages cannot be empty')
+            raise ValueError('messages cannot be empty')
         return v
     
     class Config:
         populate_by_name = True
         validate_assignment = True
 
-class AnalysisResponse(BaseModel):
+class AnalysisResponseData(BaseModel):
     summary: str
     tones: Dict[str, str]  # Dictionary of emotional tones and their descriptions
     themes: List[str]  # List of themes identified in the conversation
     visualSymbols: List[str]  # List of visual symbols identified in the conversation
+
+class AnalysisResponse(BaseModel):
+    statusCode: int = 200
+    message: str = "fetch sucessfully"
+    data: AnalysisResponseData
     
-class ChatResponse(BaseModel):
+class ChatResponseData(BaseModel):
     response: str
+
+class ChatResponse(BaseModel):
+    statusCode: int = 200
+    message: str = "fetch sucessfully"
+    data: ChatResponseData
 
 class ProfileMessage(BaseModel):
     query: str
@@ -227,7 +247,11 @@ async def generate_chat_response(payload: ChatRequest):
     response = response.json()
     reply = response["choices"][0]["message"]["content"]
 
-    return {"response": reply}
+    return {
+        "statusCode": 200,
+        "message": "fetch sucessfully",
+        "data": {"response": reply}
+    }
 
 @router.post("/stream")
 async def generate_streaming_response(payload: ChatRequest):
@@ -263,7 +287,7 @@ async def stream_response_from_openrouter(payload: ChatRequest) -> AsyncGenerato
         system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
     except HTTPException as e:
         # Return the error as an SSE event
-        yield f"data: {json.dumps({'error': e.detail})}\n\n".encode('utf-8')
+        yield f"data: {json.dumps({'statusCode': e.status_code, 'message': e.detail, 'data': None})}\n\n".encode('utf-8')
         yield f"data: [DONE]\n\n".encode('utf-8')
         return
     
@@ -319,7 +343,7 @@ async def stream_response_from_openrouter(payload: ChatRequest) -> AsyncGenerato
             if response.status != 200:
                 error_text = await response.text()
                 error_msg = f"Error from OpenRouter API: {response.status} - {error_text}"
-                yield f"data: {json.dumps({'error': error_msg})}\n\n".encode('utf-8')
+                yield f"data: {json.dumps({'statusCode': response.status, 'message': error_msg, 'data': None})}\n\n".encode('utf-8')
                 return
             
             # Process the streaming response
@@ -342,7 +366,7 @@ async def stream_response_from_openrouter(payload: ChatRequest) -> AsyncGenerato
                             content = delta.get("content", "")
                             if content:
                                 # Format as SSE event
-                                yield f"data: {json.dumps({'response': content})}\n\n".encode('utf-8')
+                                yield f"data: {json.dumps({'statusCode': 200, 'message': 'fetch sucessfully', 'data': {'response': content}})}\n\n".encode('utf-8')
                                 # Small delay to avoid overwhelming the client
                                 await asyncio.sleep(0.01)
                     except json.JSONDecodeError as e:
@@ -362,8 +386,15 @@ async def summarize_chat(payload: SummaryRequest):
     if payload.user_type == UserType.PAID and not payload.model:
         model = "anthropic/claude-3-sonnet"  # Use a better model for paid users
     
-    # Prepare the chat messages as a single string
-    chat_content = "\n".join(payload.chat_messages)
+    # Format the messages for the prompt
+    formatted_messages = []
+    for msg in payload.messages:
+        if msg.isUser:
+            formatted_messages.append(f"User: {msg.response}")
+        else:
+            formatted_messages.append(f"Question: {msg.query}")
+    
+    chat_content = "\n".join(formatted_messages)
     
     # Create the system prompt for summarization
     system_prompt = "You are a summarization assistant. Your task is to provide a concise 2-line summary of conversations. Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly."
@@ -425,7 +456,11 @@ async def summarize_chat(payload: SummaryRequest):
                 summary = summary[:i+1] + "\n" + summary[i+1:].strip()
                 break
     
-    return {"summary": summary}
+    return {
+        "statusCode": 200,
+        "message": "fetch sucessfully",
+        "data": {"summary": summary}
+    }
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_chat(payload: AnalysisRequest):
@@ -437,8 +472,15 @@ async def analyze_chat(payload: AnalysisRequest):
     if payload.user_type == UserType.PAID and not payload.model:
         model = "anthropic/claude-3-sonnet"  # Use a better model for paid users
     
-    # Prepare the chat messages as a single string
-    chat_content = "\n".join(payload.chat_messages)
+    # Format the messages for the prompt
+    formatted_messages = []
+    for msg in payload.messages:
+        if msg.isUser:
+            formatted_messages.append(f"User: {msg.response}")
+        else:
+            formatted_messages.append(f"Question: {msg.query}")
+    
+    chat_content = "\n".join(formatted_messages)
     
     # Create the system prompt for analysis
     system_prompt = """You are a chat analysis assistant specializing in emotional and thematic analysis. 
@@ -505,21 +547,29 @@ Ensure your response is ONLY the JSON object, nothing else."""
             analysis['visualSymbols'] = ["speech bubble"]
             
         return {
-            "summary": analysis['summary'],
-            "tones": analysis['tones'],
-            "themes": analysis['themes'],
-            "visualSymbols": analysis['visualSymbols']
+            "statusCode": 200,
+            "message": "fetch sucessfully",
+            "data": {
+                "summary": analysis['summary'],
+                "tones": analysis['tones'],
+                "themes": analysis['themes'],
+                "visualSymbols": analysis['visualSymbols']
+            }
         }
     except json.JSONDecodeError:
         # If JSON parsing fails, create a basic analysis manually
         return {
-            "summary": "A conversation between two or more people.",
-            "tones": {
-                "neutral": "The conversation has a generally neutral tone without strong emotional elements.",
-                "informative": "The conversation appears to be primarily focused on sharing information rather than expressing strong emotions."
-            },
-            "themes": ["general conversation", "information exchange"],
-            "visualSymbols": ["speech bubble", "conversation"]
+            "statusCode": 200,
+            "message": "fetch sucessfully",
+            "data": {
+                "summary": "A conversation between two or more people.",
+                "tones": {
+                    "neutral": "The conversation has a generally neutral tone without strong emotional elements.",
+                    "informative": "The conversation appears to be primarily focused on sharing information rather than expressing strong emotions."
+                },
+                "themes": ["general conversation", "information exchange"],
+                "visualSymbols": ["speech bubble", "conversation"]
+            }
         }
         
         # This is the end of the analyze_chat function
@@ -541,7 +591,11 @@ async def profile_summary(payload: ProfileSummaryRequest):
     # Get the OpenRouter API key from environment variables
     OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
     if not OPENROUTER_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenRouter API key not configured")
+        return {
+            "statusCode": 500,
+            "message": "OpenRouter API key not configured",
+            "data": None
+        }
     
     # Determine the model to use based on user type
     if payload.model and payload.model.strip() != "":
