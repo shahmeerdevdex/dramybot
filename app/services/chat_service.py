@@ -178,19 +178,31 @@ async def analyze_chat(payload: AnalysisRequest) -> AnalysisResponse:
         chat_content = "\n".join(formatted_messages)
         
         # Create the system prompt for analysis
-        system_prompt = """You are a chat analysis assistant specializing in emotional and thematic analysis. 
+        system_prompt = """You are a dream analysis assistant specializing in emotional and thematic analysis. 
 
-Your task is to analyze conversations and extract:
-1. A concise summary of the conversation
-2. Emotional tones present in the conversation with detailed descriptions
-3. Underlying themes in the conversation
-4. Visual symbols that represent the conversation
+Your task is to analyze dream narratives and extract:
+1. A title for the dream
+2. A short text summary (one sentence)
+3. A detailed summary with multiple components
+4. Emotional tones present in the dream with detailed descriptions
+5. Underlying themes in the dream
+6. Visual symbols that represent the dream
 
 Provide your analysis in valid JSON format with these fields:
-- summary: A concise summary of the conversation
-- tones: An array of objects, each with 'name' and 'description' fields, where 'name' is the emotional tone and 'description' is a detailed paragraph about that tone
-- themes: An array of underlying themes identified in the conversation
-- visualSymbols: An array of visual symbols that represent the conversation
+- title: A concise, evocative title for the dream
+- shortText: A one-sentence summary that captures the essence of the dream
+- summary: An object with the following fields:
+  - dreamEntry: A concise retelling of the dream narrative
+  - summarizedAnalysis: A brief analysis of the dream's meaning
+  - thoughtReflection: Reflective thoughts about what the dream might be revealing
+  - alignedAction: Suggested actions based on the dream's insights
+- tones: An array of objects, each with the following fields:
+  - name: The emotional tone (e.g., fear, uncertainty, introspection)
+  - description: A detailed paragraph about that tone
+  - manifests: How this tone manifests in the dreamer's life
+  - triggers: What might trigger this emotional tone
+- themes: An array of underlying themes identified in the dream
+- visualSymbols: An array of visual symbols that represent the dream
 
 Ensure your response is ONLY the JSON object, nothing else."""
         
@@ -201,7 +213,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
                 "role": "system"
             },
             {
-                "content": f"Analyze the following conversation and extract:\n\n1. A concise summary\n2. Emotional tones present (like fear, anxiety, happiness, etc.) with detailed paragraph descriptions for each tone\n3. Underlying themes in the conversation (like 'lack of security', 'anticipation of danger', etc.)\n4. Visual symbols that represent the conversation (like 'rain', 'home', etc.)\n\nReturn ONLY a JSON object with these fields:\n- summary: A concise summary of the conversation\n- tones: An array of objects, each with 'name' and 'description' fields, where 'name' is the emotional tone and 'description' is a detailed paragraph about that tone\n- themes: An array of underlying themes identified in the conversation\n- visualSymbols: An array of visual symbols that represent the conversation\n\n{chat_content}",
+                "content": f"Analyze the following dream narrative and extract:\n\n1. A title for the dream\n2. A short text summary (one sentence)\n3. A detailed summary with components (dreamEntry, summarizedAnalysis, thoughtReflection, alignedAction)\n4. Emotional tones present (like fear, anxiety, happiness, etc.) with detailed descriptions, how they manifest, and what triggers them\n5. Underlying themes in the dream (like 'lack of security', 'anticipation of danger', etc.)\n6. Visual symbols that represent the dream (like 'rain', 'home', etc.)\n\nReturn ONLY a JSON object with these fields:\n- title: A concise, evocative title for the dream\n- shortText: A one-sentence summary that captures the essence of the dream\n- summary: An object with dreamEntry, summarizedAnalysis, thoughtReflection, and alignedAction fields\n- tones: An array of objects, each with 'name', 'description', 'manifests', and 'triggers' fields\n- themes: An array of underlying themes identified in the dream\n- visualSymbols: An array of visual symbols that represent the dream\n\n{chat_content}",
                 "role": "user"
             }
         ]
@@ -220,40 +232,77 @@ Ensure your response is ONLY the JSON object, nothing else."""
         analysis = extract_json_from_text(analysis_text)
         
         # Ensure all required fields are present
-        if 'summary' not in analysis:
-            analysis['summary'] = "No summary available"
+        if 'title' not in analysis:
+            analysis['title'] = "Dream Analysis"
+        if 'shortText' not in analysis:
+            analysis['shortText'] = "A dream narrative with symbolic elements."
             
-        # Convert tones from dictionary to list of ToneItem objects
+        # Ensure summary object has all required fields
+        if 'summary' not in analysis or not isinstance(analysis['summary'], dict):
+            analysis['summary'] = {
+                "dreamEntry": "A dream narrative that explores the subconscious mind.",
+                "summarizedAnalysis": "The dream appears to represent inner thoughts and emotions.",
+                "thoughtReflection": "This dream may be revealing underlying concerns or desires.",
+                "alignedAction": "Consider reflecting on the symbols and emotions present in this dream."
+            }
+        else:
+            # Ensure all summary fields exist
+            required_summary_fields = ["dreamEntry", "summarizedAnalysis", "thoughtReflection", "alignedAction"]
+            for field in required_summary_fields:
+                if field not in analysis['summary']:
+                    analysis['summary'][field] = f"No {field} available."
+            
+        # Convert tones to list of ToneItem objects
         tone_items = []
-        if 'tones' in analysis:
-            if isinstance(analysis['tones'], dict):
-                # Convert from dict format to list of ToneItem objects
-                for tone_name, tone_description in analysis['tones'].items():
-                    tone_items.append(ToneItem(name=tone_name, description=tone_description))
-            elif isinstance(analysis['tones'], list):
-                # If the model already returned a list format, ensure it has name and description fields
-                for tone in analysis['tones']:
-                    if isinstance(tone, dict) and 'name' in tone and 'description' in tone:
-                        tone_items.append(ToneItem(**tone))
+        if 'tones' in analysis and isinstance(analysis['tones'], list):
+            for tone in analysis['tones']:
+                if isinstance(tone, dict):
+                    # Ensure all required fields exist
+                    if 'name' not in tone:
+                        tone['name'] = "unnamed tone"
+                    if 'description' not in tone:
+                        tone['description'] = "No description available."
+                    if 'manifests' not in tone:
+                        tone['manifests'] = "This tone may manifest in various aspects of daily life."
+                    if 'triggers' not in tone:
+                        tone['triggers'] = "This tone may be triggered by various life circumstances."
+                    
+                    tone_items.append(ToneItem(**tone))
         
-        # If no tones were found or conversion failed, add a default tone
+        # If no tones were found or conversion failed, add default tones
         if not tone_items:
             tone_items = [
                 ToneItem(
-                    name="neutral", 
-                    description="The conversation has a generally neutral tone without strong emotional elements."
+                    name="fear", 
+                    description="The dream exhibits elements of fear and anxiety.",
+                    manifests="This fear may manifest as hesitation in taking risks in daily life.",
+                    triggers="This fear may be triggered by situations of uncertainty or change."
+                ),
+                ToneItem(
+                    name="uncertainty",
+                    description="The dream shows signs of uncertainty and doubt.",
+                    manifests="This uncertainty may manifest as indecision in important life choices.",
+                    triggers="This uncertainty may be triggered by lack of clear direction or guidance."
+                ),
+                ToneItem(
+                    name="introspection",
+                    description="The dream has elements of self-reflection and introspection.",
+                    manifests="This introspection may manifest as a desire to understand oneself better.",
+                    triggers="This introspection may be triggered by moments of solitude or quiet contemplation."
                 )
             ]
             
-        if 'themes' not in analysis:
-            analysis['themes'] = ["general conversation"]
-        if 'visualSymbols' not in analysis:
-            analysis['visualSymbols'] = ["speech bubble"]
+        if 'themes' not in analysis or not analysis['themes']:
+            analysis['themes'] = ["Self-discovery", "Inner conflict", "Transformation"]
+        if 'visualSymbols' not in analysis or not analysis['visualSymbols']:
+            analysis['visualSymbols'] = ["Door", "Path", "Light"]
             
         return AnalysisResponse(
             statusCode=200,
             message="fetch sucessfully",
             data=AnalysisResponseData(
+                title=analysis['title'],
+                shortText=analysis['shortText'],
                 summary=analysis['summary'],
                 tones=tone_items,
                 themes=analysis['themes'],

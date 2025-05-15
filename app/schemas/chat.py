@@ -66,6 +66,8 @@ class SummaryResponse(StandardResponse):
 class ToneItem(BaseModel):
     name: str
     description: str
+    manifests: str
+    triggers: str
 class AnalysisRequest(BaseModel):
     user_id: str
     user_type: UserType
@@ -83,8 +85,15 @@ class AnalysisRequest(BaseModel):
         validate_assignment = True
 
 class AnalysisResponseData(BaseModel):
-    summary: str
-    tones: List[ToneItem]  # List of emotional tones with name and description
+    title: str
+    shortText: str
+    summary: dict = {
+        "dreamEntry": "",
+        "summarizedAnalysis": "",
+        "thoughtReflection": "",
+        "alignedAction": ""
+    }
+    tones: List[ToneItem]  # List of emotional tones with name, description, manifests, and triggers
     themes: List[str]  # List of themes identified in the conversation
     visualSymbols: List[str]  # List of visual symbols identified in the conversation
 
