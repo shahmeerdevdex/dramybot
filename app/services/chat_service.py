@@ -8,6 +8,7 @@ from app.schemas.chat import (
 from app.schemas.common import UserType, ChatMode
 from app.core.config import get_chat_config
 from app.utils.openrouter import make_openrouter_request, extract_json_from_text
+from app.core.prompts import combined_prompt
 
 
 async def generate_chat(payload: ChatRequest) -> ChatResponse:
@@ -175,7 +176,7 @@ async def analyze_chat(payload: AnalysisRequest) -> AnalysisResponse:
             else:
                 formatted_messages.append(f"Question: {msg.query}")
         
-        chat_content = "\n".join(formatted_messages)
+        user_prompt = combined_prompt + "\n".join(formatted_messages)
         
         # Create the system prompt for analysis
         system_prompt = """You are a dream analysis assistant specializing in emotional and thematic analysis. 
@@ -202,7 +203,15 @@ Provide your analysis in valid JSON format with these fields:
   - manifests: How this tone manifests in the dreamer's life
   - triggers: What might trigger this emotional tone
 - themes: An array of underlying themes identified in the dream
+  - name: The emotional tone (e.g., fear, uncertainty, introspection)
+  - description: A detailed paragraph about that tone
+  - manifests: How this tone manifests in the dreamer's life
+  - triggers: What might trigger this emotional tone
 - visualSymbols: An array of visual symbols that represent the dream
+  - name: The emotional tone (e.g., fear, uncertainty, introspection)
+  - description: A detailed paragraph about that tone
+  - manifests: How this tone manifests in the dreamer's life
+  - triggers: What might trigger this emotional tone
 
 Ensure your response is ONLY the JSON object, nothing else."""
         
@@ -213,16 +222,16 @@ Ensure your response is ONLY the JSON object, nothing else."""
                 "role": "system"
             },
             {
-                "content": f"Analyze the following dream narrative and extract:\n\n1. A title for the dream\n2. A short text summary (one sentence)\n3. A detailed summary with components (dreamEntry, summarizedAnalysis, thoughtReflection, alignedAction)\n4. Emotional tones present (like fear, anxiety, happiness, etc.) with detailed descriptions, how they manifest, and what triggers them\n5. Underlying themes in the dream (like 'lack of security', 'anticipation of danger', etc.)\n6. Visual symbols that represent the dream (like 'rain', 'home', etc.)\n\nReturn ONLY a JSON object with these fields:\n- title: A concise, evocative title for the dream\n- shortText: A one-sentence summary that captures the essence of the dream\n- summary: An object with dreamEntry, summarizedAnalysis, thoughtReflection, and alignedAction fields\n- tones: An array of objects, each with 'name', 'description', 'manifests', and 'triggers' fields\n- themes: An array of underlying themes identified in the dream\n- visualSymbols: An array of visual symbols that represent the dream\n\n{chat_content}",
+                "content": user_prompt,
                 "role": "user"
             }
         ]
         
         # Make the API request
         response_data = make_openrouter_request(
-            model=model,
+            model="google/gemma-3-27b-it",
             messages=messages,
-            temperature=0.3  # Lower temperature for more focused analysis
+            temperature=0.5  # Lower temperature for more focused analysis
         )
         
         # Extract the analysis text

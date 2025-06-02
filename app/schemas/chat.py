@@ -94,8 +94,8 @@ class AnalysisResponseData(BaseModel):
         "alignedAction": ""
     }
     tones: List[ToneItem]  # List of emotional tones with name, description, manifests, and triggers
-    themes: List[str]  # List of themes identified in the conversation
-    visualSymbols: List[str]  # List of visual symbols identified in the conversation
+    themes:  List[ToneItem]  # List of themes identified in the conversation
+    visualSymbols: List[ToneItem]  # List of visual symbols identified in the conversation
 
 class AnalysisResponse(StandardResponse):
     data: AnalysisResponseData
