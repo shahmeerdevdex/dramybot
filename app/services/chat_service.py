@@ -8,7 +8,7 @@ from app.schemas.chat import (
 from app.schemas.common import UserType, ChatMode
 from app.core.config import get_chat_config
 from app.utils.openrouter import make_openrouter_request, extract_json_from_text
-from app.core.prompts import combined_prompt
+from app.core.prompts import combined_prompt,summary_prompt,dream_summary_prompt
 
 
 async def generate_chat(payload: ChatRequest) -> ChatResponse:
@@ -77,9 +77,9 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
     """Generate a 2-line summary of chat messages"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "anthropic/claude-3-haiku"
+        model = payload.model if payload.model else "google/gemma-3-27b-it"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "anthropic/claude-3-sonnet"  # Use a better model for paid users
+            model = "google/gemma-3-27b-it"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -92,8 +92,8 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         chat_content = "\n".join(formatted_messages)
         
         # Create the system prompt for summarization
-        system_prompt = "You are a summarization assistant. Your task is to provide a concise 2-line summary of conversations. Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly."
-        
+        #system_prompt = "You are a summarization assistant. Your task is to provide a concise 2-line summary of conversations. Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly."
+        system_prompt = summary_prompt
         # Prepare the messages for the API request
         messages = [
             {
@@ -110,7 +110,7 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         response_data = make_openrouter_request(
             model=model,
             messages=messages,
-            temperature=0.3  # Lower temperature for more focused summaries
+            temperature=0.5  # Lower temperature for more focused summaries
         )
         
         # Extract the summary text
@@ -164,9 +164,9 @@ async def analyze_chat(payload: AnalysisRequest) -> AnalysisResponse:
     """Analyze chat messages to extract emotional tones, themes, and visual symbols"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "anthropic/claude-3-haiku"
+        model = payload.model if payload.model else "google/gemma-3-27b-it"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "anthropic/claude-3-sonnet"  # Use a better model for paid users
+            model = "google/gemma-3-27b-it"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -348,9 +348,9 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         if payload.model and payload.model.strip() != "":
             model = payload.model
         elif payload.user_type == UserType.PAID:
-            model = "anthropic/claude-3-sonnet"
+            model = "google/gemma-3-27b-it"
         else:
-            model = "anthropic/claude-3-haiku"
+            model = "google/gemma-3-27b-it"
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -388,7 +388,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
         response_data = make_openrouter_request(
             model=model,
             messages=messages,
-            temperature=0.3  # Lower temperature for more focused summary
+            temperature=0.5  # Lower temperature for more focused summary
         )
         
         # Extract the summary text

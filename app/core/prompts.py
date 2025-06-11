@@ -162,10 +162,13 @@ I will provide you a transcript of my dream and our conversation. Based on the c
 
 6. summary (Summarized Analysis):
    Detailed Insights - Dream Page 5  
-   I will provide you a transcript of our conversation.  
-   Based on what we discussed, provide a 3–4 sentence summary about what my dream means or is processing from my subconscious,  
-   including core themes, latent desires/fears, beliefs, patterns, etc. that are coming up based on visual symbols, emotions, overarching themes, intentions, etc.  
-   Do not preface it with anything, provide only the JSON-compatible text.
+   I will provide you a transcript of our last 3 conversations. Based on what we
+   discussed, provide a brief 1 sentence summary about what my subconscious
+   seems to be currently processing, including the core themes, latent desires and
+   fears, beliefs, patterns etc. that revealed themselves based on the dream and our
+   following conversation. "Based on your most recent dreams, it sounds like ..." Do
+   not preface it with anything, provide only the answer. Your tone should be warm,
+   curious, supportive, gentle, nonjudgmental, non-confrontational. Second person.
 
 7. thoughtReflection (Thought Reflection/Journal):
    Detailed Insights - Dream Page 6  
@@ -185,4 +188,40 @@ I will provide you a transcript of my dream and our conversation. Based on the c
    Do not preface it with anything, provide only the answer.
 
 Conversation:
+"""
+
+summary_prompt = """
+I will give you a dream symbol, theme or situation, and you will provide 4-6
+sentences about what this symbol represents for me personally when it appears in
+my dreams for my own highly tailored and personalized dream dictionary, based
+on the commonality of how this symbol manifests in my collective dream logs and
+discussions that feature this symbol. Use your deep knowledge of dreaming and
+sleep science, dream symbolism, psychology, faith and spirituality, society and
+culture, intuition, relationships, remote associations, subconscious processing,
+limiting and expansive beliefs, nervous system, neuroscience, active listening,
+cognitive and unconscious bias, and mental health to determine what this symbol
+Dream Dictionary 1
+means for me and what it represents in my subconscious mind and how it
+connects to any repressed behavior, latent fears, self-image and inner beliefs,
+desires, values, anxieties, boundaries, self-sabotage, self-perception and
+personality, insecurities, environment, mental blocks, internal conflicts, coping
+mechanisms, projections, inner child, emotional processing etc.
+Focus on just the significance of this symbol only. Be straightforward, and limit
+hyperbole. Show your reasoning or references. Do not offer advice or
+direction/reminders/suggestions. Do not preface it with anything, provide only the
+answer.
+ Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly.
+"""
+
+
+dream_summary_prompt = """
+I will provide you a transcript of our last 3 conversations. Based on what we
+discussed, provide a brief 1 sentence summary about what my subconscious
+seems to be currently processing, including the core themes, latent desires and
+fears, beliefs, patterns etc. that revealed themselves based on the dream and our
+following conversation. "Based on your most recent dreams, it sounds like ..." Do
+not preface it with anything, provide only the answer. Your tone should be warm,
+curious, supportive, gentle, nonjudgmental, non-confrontational. Second person.Do not preface it with anything, provide only the
+answer.
+ Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly.
 """
