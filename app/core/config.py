@@ -22,7 +22,7 @@ MODEL_CONFIG = {
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a dream interpreter and creative assistant. Help users explore their dreams with insight and imagination."
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination."
         }
     },
     UserType.PAID: {
@@ -32,7 +32,7 @@ MODEL_CONFIG = {
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
-            "system_prompt": "You are a dream interpreter and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination."
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination."
         }
     }
 }
