@@ -207,7 +207,7 @@ Provide your analysis in valid JSON format with these fields:
   - manifests:   How this symbol manifests in the dreamer's life
   - triggers:    What might trigger this symbol
 
-Ensure your response is ONLY the JSON object, nothing else. and dont ask for more context generate it from the data which you have you response should be just strictly this json nothing else
+Ensure your response is ONLY the JSON object, nothing else. 
 """
 
 summary_prompt = """
