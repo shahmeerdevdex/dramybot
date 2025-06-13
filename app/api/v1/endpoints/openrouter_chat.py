@@ -97,10 +97,10 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         messages = [
             {
                 "content": system_prompt + chat_messages,
-                "role": "system"  # Changed from 'assistant' to 'system' for proper role assignment
+                "role": "system"
             },
             {
-                "content": f"here are the previous messages {chat_messages}",
+                "content": f"{payload.user_prompt} and here are the previous messages {chat_messages}",
                 "role": "user"
             }
         ]

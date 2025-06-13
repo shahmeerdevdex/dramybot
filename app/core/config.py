@@ -18,21 +18,21 @@ MODEL_CONFIG = {
     UserType.GUEST: {
         ChatMode.GENERAL: {
             "model": "anthropic/claude-3-haiku",
-            "system_prompt": "You are a helpful assistant that provides clear, concise, and accurate information.if there are greeting in previous chat dont include them in response "
+            "system_prompt": "You are a helpful assistant that provides clear, concise, and accurate information.dont include greetings unless user prompt  is  hey,hi,hello, etc"
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination.if there are greeting in previous chat dont include them in response"
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc"
         }
     },
     UserType.PAID: {
         ChatMode.GENERAL: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a premium assistant named DreamyBot that provides detailed, nuanced, and comprehensive information.if there are greeting in previous chat dont include them in response"
+            "system_prompt": "You are a premium assistant named DreamyBot that provides detailed, nuanced, and comprehensive information..dont include greetings unless user prompt  is  hey,hi,hello, etc"
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination.if there are greeting in previous chat dont include them in response"
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc"
         }
     }
 }
