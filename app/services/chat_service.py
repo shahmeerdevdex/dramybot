@@ -77,9 +77,9 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
     """Generate a 2-line summary of chat messages"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "anthropic/claude-3-opus"
+        model = payload.model if payload.model else "google/gemma-3-27b-it"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "anthropic/claude-3-opus"  # Use a better model for paid users
+            model = "google/gemma-3-27b-it"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -160,13 +160,13 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         )
 
 
-async def analyze_chat(payload: AnalysisRequest) :
+async def analyze_chat(payload: AnalysisRequest):
     """Analyze chat messages to extract emotional tones, themes, and visual symbols"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "anthropic/claude-3-opus"
+        model = payload.model if payload.model else "google/gemma-3-27b-it"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "anthropic/claude-3-opus"  # Use a better model for paid users
+            model = "google/gemma-3-27b-it"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = ""
@@ -178,66 +178,7 @@ async def analyze_chat(payload: AnalysisRequest) :
         
         user_prompt = formatted_messages
         
-        # Create the system prompt for analysis
-   #      system_prompt = """You are a dream analysis assistant specializing in emotional and thematic analysis.
-   #
-   #      Your task is to analyze dream narratives and extract:
-   #      1. A title for the dream
-   #      2. A short text summary object
-   #      3. A detailed summary with multiple components
-   #      4. Emotional tones present in the dream with detailed descriptions
-   #      5. Underlying themes in the dream
-   #      6. Visual symbols that represent the dream
-   #
-   #      Provide your analysis in valid JSON format with these fields:
-   #      - title:  I will provide you a transcript of my dream and our conversation.
-   # Based on the dream content, provide a very concise, straightforward title for my dream journal
-   # based on the visual symbols, overall narrative or themes in the dream.
-   # I should be able to identify it quickly by title. Do not preface it with anything, provide only the answer.
-   #      - shortText:  I will provide you a transcript of my dream and our conversation.
-   # Based on our conversation, provide a brief 1 sentence enlightening insight rooted in stoicism, taoism, positive psychology, spirituality, mindset, energy, etc.
-   # Based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.
-   # Do not preface it with anything, provide only the answer.
-   #      - summary: An object with the following fields:
-   #      - dreamEntry:
-   #      - summarizedAnalysis: {
-   #      "dreamEntry": "A concise retelling of the dream narrative",
-   #      "summarizedAnalysis": "A detailed summary with multiple components",
-   #      "thoughtReflection": "I will provide you a transcript of our conversation.
-   # Based on what we discussed, provide 1 personal self-reflective journal prompt/thought reflection based on core themes, topics, and issues we talked about,
-   # and based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).
-   # Only share the reflection question, max 2 sentences. Questions should be deeply introspective, slightly challenging, and deep, as if I were talking to myself.
-   # Do not preface it with anything, provide only the journal prompt.",
-   #      "alignedAction":I will provide you a transcript of our conversation.
-   # Based on what we discussed, provide an aligned action/actionable exercise to address and improve the core themes, topics, and issues we talked about
-   # based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).
-   # Exercises should be highly personalized, healing, nuanced, and tailored to my preferences and what would be the most impactful for me.
-   # First, very briefly title the exercise and then share the exercise in 3–6 sentences. Then, give me 1–2 sentences summarizing what this exercise addresses and the goal.
-   # Do not preface it with anything, provide only the answer."
-   #  }
-   #      - tones: An array of objects, each with the following fields:
-   #          - name: The emotional tone (e.g., fear, uncertainty, introspection)
-   #          - description: A detailed paragraph about that tone
-   #          - manifests: How this tone manifests in the dreamer's life
-   #          - triggers: What might trigger this emotional tone
-   #      - themes: An array of underlying themes identified in the dream
-   #          - name:    I will provide you a transcript of my dream and our conversation.
-   # Based on the dream content,  primary themes that are present in the dream
-   # based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.
-   # Do not provide more than 3. Do not preface it with anything, provide only the answer
-   #          - description: A detailed paragraph about that tone
-   #          - manifests: How this tone manifests in the dreamer's life
-   #          - triggers: What might trigger this emotional tone
-   #      - visualSymbols: An array of visual symbols max 6 that represent the dream
-   #          - name: I will provide you a transcript of my dream and our conversation.
-   # Based on the dream content only
-   #          - description: A detailed paragraph about that tone
-   #          - manifests: How this tone manifests in the dreamer's life
-   #          - triggers: What might trigger this emotional tone
-   #
-   #      Ensure your response is ONLY the JSON object, nothing else."""
-        
-        # Prepare the messages for the API request
+
         messages = [
             {
                 "content": combined_prompt+formatted_messages,
@@ -251,7 +192,7 @@ async def analyze_chat(payload: AnalysisRequest) :
         
         # Make the API request
         response_data = make_openrouter_request(
-            model="anthropic/claude-3-opus",
+            model="google/gemma-3-27b-it",
             messages=messages,
             temperature=0.5  # Lower temperature for more focused analysis
         )
@@ -261,6 +202,49 @@ async def analyze_chat(payload: AnalysisRequest) :
         
         # Extract the JSON from the response
         analysis = extract_json_from_text(analysis_text)
+
+        if not analysis:
+            return {
+                "statusCode": 400,
+                "message": "Need more context of dream to interpret",
+                "data": {
+                    "title":'NA',
+                    "shortText":'NA',
+                     "summary" : {
+                        "dreamEntry": "NA",
+                        "summarizedAnalysis": "NA",
+                        "thoughtReflection": "NA",
+                        "alignedAction": "NA"
+                    },
+                    "tones": [
+                        ToneItem(
+                            name="NA",
+                            description="NA",
+                            manifests="NA",
+                            triggers="NA"
+                        ),
+                        ToneItem(
+                            name="NA",
+                            description="NA",
+                            manifests="NA",
+                            triggers="NA"
+                        )
+                    ],
+                    "themes": [ ToneItem(
+                            name="NA",
+                            description="NA",
+                            manifests="NA",
+                            triggers="NA"
+                        )],
+                    "visualSymbols": [ ToneItem(
+                            name="NA",
+                            description="NA",
+                            manifests="NA",
+                            triggers="NA"
+                        )]
+                }
+            }
+
         
         # Ensure all required fields are present
         if 'title' not in analysis:
@@ -343,26 +327,43 @@ async def analyze_chat(payload: AnalysisRequest) :
         
     except Exception as e:
         return {
-            "statusCode":500,
-            "message":str(e),
-            "data":{
-                "summary":"A conversation between two or more people.",
-                "tones":[
+            "statusCode": 400,
+            "message": f"{e}",
+            "data": {
+                "title": 'NA',
+                "shortText": 'NA',
+                "summary": {
+                    "dreamEntry": "NA",
+                    "summarizedAnalysis": "NA",
+                    "thoughtReflection": "NA",
+                    "alignedAction": "NA"
+                },
+                "tones": [
                     ToneItem(
-                        name="neutral", 
-                        description="The conversation has a generally neutral tone without strong emotional elements.",
-                        manifests="This introspection may manifest as a desire to understand oneself better.",
-                        triggers="This introspection may be triggered by moments of solitude or quiet contemplation."
+                        name="NA",
+                        description="NA",
+                        manifests="NA",
+                        triggers="NA"
                     ),
                     ToneItem(
-                        name="informative", 
-                        description="The conversation appears to be primarily focused on sharing information rather than expressing strong emotions.",
-                        manifests="This introspection may manifest as a desire to understand oneself better.",
-                        triggers="This introspection may be triggered by moments of solitude or quiet contemplation."
+                        name="NA",
+                        description="NA",
+                        manifests="NA",
+                        triggers="NA"
                     )
                 ],
-                "themes":["general conversation", "information exchange"],
-                "visualSymbols":["speech bubble", "conversation"]
+                "themes": [ToneItem(
+                    name="NA",
+                    description="NA",
+                    manifests="NA",
+                    triggers="NA"
+                )],
+                "visualSymbols": [ToneItem(
+                    name="NA",
+                    description="NA",
+                    manifests="NA",
+                    triggers="NA"
+                )]
             }
         }
 
@@ -374,9 +375,9 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         if payload.model and payload.model.strip() != "":
             model = payload.model
         elif payload.user_type == UserType.PAID:
-            model = "anthropic/claude-3-opus"
+            model = "google/gemma-3-27b-it"
         else:
-            model = "anthropic/claude-3-opus"
+            model = "google/gemma-3-27b-it"
         
         # Format the messages for the prompt
         formatted_messages = []
