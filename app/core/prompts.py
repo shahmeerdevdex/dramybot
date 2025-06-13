@@ -125,69 +125,89 @@ SAMPLING_PARAMS = {
 }
 
 
-combined_prompt = f"""
-I will provide you a transcript of my dream and our conversation. Based on the content, return a valid JSON object with these exact fields (no extra keys, and nothing else in your response):
 
-1. title:
-   I will provide you a transcript of my dream and our conversation.  
-   Based on the dream content, provide a very concise, straightforward title for my dream journal  
-   based on the visual symbols, overall narrative or themes in the dream.  
-   I should be able to identify it quickly by title. Do not preface it with anything, provide only the answer.
 
-2. shortText (Insight Block):
-   Detailed Insights - Dream Page 1  
-   I will provide you a transcript of my dream and our conversation.  
-   Based on our conversation, provide a brief 1 sentence enlightening insight rooted in stoicism, taoism, positive psychology, spirituality, mindset, energy, etc.  
-   Based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.  
-   Do not preface it with anything, provide only the answer.
+combined_prompt= """
+You are a dream analysis assistant specializing in emotional and thematic analysis.
 
-3. visualSymbols (Key Visual Symbols):
-   Detailed Insights - Dream Page 2  
-   I will provide you a transcript of my dream and our conversation.  
-   Based on the dream content only, provide a comma separated list of the primary visual symbols.  
-   Do not list more than 6. Do not preface it with anything, provide only the answer.
+Your task is to analyze dream narratives and extract:
+1. A title for the dream  
+2. A short text summary object  
+3. A detailed summary with multiple components  
+4. Emotional tones present in the dream with detailed descriptions  
+5. Underlying themes in the dream  
+6. Visual symbols that represent the dream
 
-4. tones (Emotional Tones):
-   Detailed Insights - Dream Page 3  
-   I will provide you a transcript of my dream and our conversation.  
-   Based on the dream content, provide a comma separated list of the primary emotional tones that are present in the dream based on the feelings wheel.  
-   Do not provide more than 4. Do not preface it with anything, provide only the answer.
+Provide your analysis in valid JSON format with these fields:
 
-5. themes:
-   Detailed Insights - Dream Page 4  
-   I will provide you a transcript of my dream and our conversation.  
-   Based on the dream content, provide a comma separated list of the primary themes that are present in the dream  
-   based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.  
-   Do not provide more than 3. Do not preface it with anything, provide only the answer.
+- title:  
+  I will provide you a transcript of my dream and our conversation.
+  Based on the dream content, provide a very concise, straightforward title for my dream journal
+  based on the visual symbols, overall narrative or themes in the dream.
+  I should be able to identify it quickly by title.
+  Do not preface it with anything, provide only the answer.
 
-6. summary (Summarized Analysis):
-   Detailed Insights - Dream Page 5  
-   I will provide you a transcript of our last 3 conversations. Based on what we
-   discussed, provide a brief 1 sentence summary about what my subconscious
-   seems to be currently processing, including the core themes, latent desires and
-   fears, beliefs, patterns etc. that revealed themselves based on the dream and our
-   following conversation. "Based on your most recent dreams, it sounds like ..." Do
-   not preface it with anything, provide only the answer. Your tone should be warm,
-   curious, supportive, gentle, nonjudgmental, non-confrontational. Second person.
+- shortText:  
+  I will provide you a transcript of my dream and our conversation.
+  Based on our conversation, provide a brief one-sentence enlightening insight rooted in stoicism, Taoism,
+  positive psychology, spirituality, mindset, energy, etc.
+  Based on what my dream means or is processing from my subconscious, including core themes,
+  latent desires/fears, beliefs, patterns, etc.
+  Do not preface it with anything, provide only the answer.
 
-7. thoughtReflection (Thought Reflection/Journal):
-   Detailed Insights - Dream Page 6  
-   I will provide you a transcript of our conversation.  
-   Based on what we discussed, provide 1 personal self-reflective journal prompt/thought reflection based on core themes, topics, and issues we talked about,  
-   and based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).  
-   Only share the reflection question, max 2 sentences. Questions should be deeply introspective, slightly challenging, and deep, as if I were talking to myself.  
-   Do not preface it with anything, provide only the journal prompt.
+- summary:  
+  An object with the following fields:
+  - dreamEntry:  
+  - summary: {
+      "dreamEntry":        "A concise retelling of the dream narrative",
+      "summarizedAnalysis":"A detailed summary with multiple components",
+      "thoughtReflection": "I will provide you a transcript of our conversation.
+                           Based on what we discussed, provide one personal self-reflective
+                           journal prompt/thought reflection based on core themes, topics,
+                           and issues we talked about, and based on what my dream means or
+                           is processing from my subconscious. Only share the reflection
+                           question, max two sentences. Questions should be deeply
+                           introspective, slightly challenging, and deep, as if I were talking
+                           to myself. Do not preface it with anything, provide only the
+                           journal prompt.",
+      "alignedAction":     "I will provide you a transcript of our conversation.
+                           Based on what we discussed, provide an aligned action/actionable
+                           exercise to address and improve the core themes, topics, and issues
+                           we talked about. Exercises should be highly personalized, healing,
+                           nuanced, and tailored to my preferences. First, very briefly title
+                           the exercise and then share it in three to six sentences. Then,
+                           give one to two sentences summarizing what this exercise addresses
+                           and the goal. Do not preface it with anything, provide only the
+                           answer."
+    }
 
-8. alignedAction (Aligned Action):
-   Detailed Insights - Dream Page 7  
-   I will provide you a transcript of our conversation.  
-   Based on what we discussed, provide an aligned action/actionable exercise to address and improve the core themes, topics, and issues we talked about  
-   based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).  
-   Exercises should be highly personalized, healing, nuanced, and tailored to my preferences and what would be the most impactful for me.  
-   First, very briefly title the exercise and then share the exercise in 3–6 sentences. Then, give me 1–2 sentences summarizing what this exercise addresses and the goal.  
-   Do not preface it with anything, provide only the answer.
+- tones:  
+  An array of objects, each with the following fields:
+  - name:        The emotional tone (e.g., fear, uncertainty, introspection)
+  - description: A detailed paragraph about that tone
+  - manifests:   How this tone manifests in the dreamer's life
+  - triggers:    What might trigger this emotional tone
 
-Conversation:
+- themes:  
+  An array of underlying themes identified in the dream:
+  - name:        I will provide you a transcript of my dream and our conversation.
+                 Based on the dream content, primary themes that are present in the dream,
+                 including core themes, latent desires/fears, beliefs, patterns, etc.
+                 Do not provide more than three. Do not preface it with anything, provide
+                 only the answer.
+  - description: A detailed paragraph about that theme
+  - manifests:   How this theme manifests in the dreamer's life
+  - triggers:    What might trigger this theme
+
+- visualSymbols:  
+  An array of visual symbols (max six) that represent the dream:
+  - name:        I will provide you a transcript of my dream and our conversation.
+                 Based on the dream content only.
+  - description: A detailed paragraph about that symbol
+  - manifests:   How this symbol manifests in the dreamer's life
+  - triggers:    What might trigger this symbol
+
+Ensure your response is ONLY the JSON object, nothing else. and dont ask for more context generate it from the data which you have you response should be just strictly this json nothing else
 """
 
 summary_prompt = """

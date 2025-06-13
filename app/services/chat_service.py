@@ -77,9 +77,9 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
     """Generate a 2-line summary of chat messages"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "google/gemma-3-4b-it"
+        model = payload.model if payload.model else "openai/o4-mini"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "google/gemma-3-4b-it"  # Use a better model for paid users
+            model = "openai/o4-mini"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -160,65 +160,87 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         )
 
 
-async def analyze_chat(payload: AnalysisRequest) -> AnalysisResponse:
+async def analyze_chat(payload: AnalysisRequest) :
     """Analyze chat messages to extract emotional tones, themes, and visual symbols"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "google/gemma-3-4b-it"
+        model = payload.model if payload.model else "openai/o4-mini"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "google/gemma-3-4b-it"  # Use a better model for paid users
+            model = "openai/o4-mini"  # Use a better model for paid users
         
         # Format the messages for the prompt
-        formatted_messages = []
+        formatted_messages = ""
         for msg in payload.messages:
-            if msg.isUser:
-                formatted_messages.append(f"User: {msg.response}")
-            else:
-                formatted_messages.append(f"Question: {msg.query}")
+            if msg.query:
+                formatted_messages=formatted_messages+ f"User: {msg.query} \n"
+            if msg.response:
+                formatted_messages=formatted_messages + f"response: {msg.response} \n"
         
-        user_prompt = combined_prompt + "\n".join(formatted_messages)
+        user_prompt = formatted_messages
         
         # Create the system prompt for analysis
-        system_prompt = """You are a dream analysis assistant specializing in emotional and thematic analysis. 
-
-Your task is to analyze dream narratives and extract:
-1. A title for the dream
-2. A short text summary (one sentence)
-3. A detailed summary with multiple components
-4. Emotional tones present in the dream with detailed descriptions
-5. Underlying themes in the dream
-6. Visual symbols that represent the dream
-
-Provide your analysis in valid JSON format with these fields:
-- title: A concise, evocative title for the dream
-- shortText: A one-sentence summary that captures the essence of the dream
-- summary: An object with the following fields:
-  - dreamEntry: A concise retelling of the dream narrative
-  - summarizedAnalysis: A brief analysis of the dream's meaning
-  - thoughtReflection: Reflective thoughts about what the dream might be revealing
-  - alignedAction: Suggested actions based on the dream's insights
-- tones: An array of objects, each with the following fields:
-  - name: The emotional tone (e.g., fear, uncertainty, introspection)
-  - description: A detailed paragraph about that tone
-  - manifests: How this tone manifests in the dreamer's life
-  - triggers: What might trigger this emotional tone
-- themes: An array of underlying themes identified in the dream
-  - name: The emotional tone (e.g., fear, uncertainty, introspection)
-  - description: A detailed paragraph about that tone
-  - manifests: How this tone manifests in the dreamer's life
-  - triggers: What might trigger this emotional tone
-- visualSymbols: An array of visual symbols that represent the dream
-  - name: The emotional tone (e.g., fear, uncertainty, introspection)
-  - description: A detailed paragraph about that tone
-  - manifests: How this tone manifests in the dreamer's life
-  - triggers: What might trigger this emotional tone
-
-Ensure your response is ONLY the JSON object, nothing else."""
+   #      system_prompt = """You are a dream analysis assistant specializing in emotional and thematic analysis.
+   #
+   #      Your task is to analyze dream narratives and extract:
+   #      1. A title for the dream
+   #      2. A short text summary object
+   #      3. A detailed summary with multiple components
+   #      4. Emotional tones present in the dream with detailed descriptions
+   #      5. Underlying themes in the dream
+   #      6. Visual symbols that represent the dream
+   #
+   #      Provide your analysis in valid JSON format with these fields:
+   #      - title:  I will provide you a transcript of my dream and our conversation.
+   # Based on the dream content, provide a very concise, straightforward title for my dream journal
+   # based on the visual symbols, overall narrative or themes in the dream.
+   # I should be able to identify it quickly by title. Do not preface it with anything, provide only the answer.
+   #      - shortText:  I will provide you a transcript of my dream and our conversation.
+   # Based on our conversation, provide a brief 1 sentence enlightening insight rooted in stoicism, taoism, positive psychology, spirituality, mindset, energy, etc.
+   # Based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.
+   # Do not preface it with anything, provide only the answer.
+   #      - summary: An object with the following fields:
+   #      - dreamEntry:
+   #      - summarizedAnalysis: {
+   #      "dreamEntry": "A concise retelling of the dream narrative",
+   #      "summarizedAnalysis": "A detailed summary with multiple components",
+   #      "thoughtReflection": "I will provide you a transcript of our conversation.
+   # Based on what we discussed, provide 1 personal self-reflective journal prompt/thought reflection based on core themes, topics, and issues we talked about,
+   # and based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).
+   # Only share the reflection question, max 2 sentences. Questions should be deeply introspective, slightly challenging, and deep, as if I were talking to myself.
+   # Do not preface it with anything, provide only the journal prompt.",
+   #      "alignedAction":I will provide you a transcript of our conversation.
+   # Based on what we discussed, provide an aligned action/actionable exercise to address and improve the core themes, topics, and issues we talked about
+   # based on what my dream means or is processing from my subconscious (core themes, latent desires/fears, beliefs, patterns, etc.).
+   # Exercises should be highly personalized, healing, nuanced, and tailored to my preferences and what would be the most impactful for me.
+   # First, very briefly title the exercise and then share the exercise in 3–6 sentences. Then, give me 1–2 sentences summarizing what this exercise addresses and the goal.
+   # Do not preface it with anything, provide only the answer."
+   #  }
+   #      - tones: An array of objects, each with the following fields:
+   #          - name: The emotional tone (e.g., fear, uncertainty, introspection)
+   #          - description: A detailed paragraph about that tone
+   #          - manifests: How this tone manifests in the dreamer's life
+   #          - triggers: What might trigger this emotional tone
+   #      - themes: An array of underlying themes identified in the dream
+   #          - name:    I will provide you a transcript of my dream and our conversation.
+   # Based on the dream content,  primary themes that are present in the dream
+   # based on what my dream means or is processing from my subconscious, including core themes, latent desires/fears, beliefs, patterns, etc.
+   # Do not provide more than 3. Do not preface it with anything, provide only the answer
+   #          - description: A detailed paragraph about that tone
+   #          - manifests: How this tone manifests in the dreamer's life
+   #          - triggers: What might trigger this emotional tone
+   #      - visualSymbols: An array of visual symbols max 6 that represent the dream
+   #          - name: I will provide you a transcript of my dream and our conversation.
+   # Based on the dream content only
+   #          - description: A detailed paragraph about that tone
+   #          - manifests: How this tone manifests in the dreamer's life
+   #          - triggers: What might trigger this emotional tone
+   #
+   #      Ensure your response is ONLY the JSON object, nothing else."""
         
         # Prepare the messages for the API request
         messages = [
             {
-                "content": system_prompt,
+                "content": combined_prompt+formatted_messages,
                 "role": "system"
             },
             {
@@ -229,7 +251,7 @@ Ensure your response is ONLY the JSON object, nothing else."""
         
         # Make the API request
         response_data = make_openrouter_request(
-            model="google/gemma-3-4b-it",
+            model="openai/o4-mini",
             messages=messages,
             temperature=0.5  # Lower temperature for more focused analysis
         )
@@ -320,12 +342,12 @@ Ensure your response is ONLY the JSON object, nothing else."""
         )
         
     except Exception as e:
-        return AnalysisResponse(
-            statusCode=500,
-            message=str(e),
-            data=AnalysisResponseData(
-                summary="A conversation between two or more people.",
-                tones=[
+        return {
+            "statusCode":500,
+            "message":str(e),
+            "data":{
+                "summary":"A conversation between two or more people.",
+                "tones":[
                     ToneItem(
                         name="neutral", 
                         description="The conversation has a generally neutral tone without strong emotional elements.",
@@ -339,10 +361,10 @@ Ensure your response is ONLY the JSON object, nothing else."""
                         triggers="This introspection may be triggered by moments of solitude or quiet contemplation."
                     )
                 ],
-                themes=["general conversation", "information exchange"],
-                visualSymbols=["speech bubble", "conversation"]
-            )
-        )
+                "themes":["general conversation", "information exchange"],
+                "visualSymbols":["speech bubble", "conversation"]
+            }
+        }
 
 
 async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSummaryResponse:
@@ -352,9 +374,9 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         if payload.model and payload.model.strip() != "":
             model = payload.model
         elif payload.user_type == UserType.PAID:
-            model = "google/gemma-3-4b-it"
+            model = "openai/o4-mini"
         else:
-            model = "google/gemma-3-4b-it"
+            model = "openai/o4-mini"
         
         # Format the messages for the prompt
         formatted_messages = []

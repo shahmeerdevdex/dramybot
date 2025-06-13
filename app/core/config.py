@@ -28,7 +28,7 @@ MODEL_CONFIG = {
     UserType.PAID: {
         ChatMode.GENERAL: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a premium assistant that provides detailed, nuanced, and comprehensive information."
+            "system_prompt": "You are a premium assistant named DreamyBot that provides detailed, nuanced, and comprehensive information."
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
