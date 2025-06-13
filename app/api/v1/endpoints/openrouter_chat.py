@@ -105,7 +105,8 @@ async def stream_response_from_openrouter(payload: ChatRequest):
             "content": payload.user_prompt,
             "role": "user"
         })
-        
+        print(payload)
+        print("messages:", messages)
         # Stream the response from OpenRouter
         async for chunk in make_streaming_request(model, messages, payload.temperature):
             yield chunk
