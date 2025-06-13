@@ -77,9 +77,9 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
     """Generate a 2-line summary of chat messages"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "openai/o4-mini"
+        model = payload.model if payload.model else "anthropic/claude-3-opus"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "openai/o4-mini"  # Use a better model for paid users
+            model = "anthropic/claude-3-opus"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -164,9 +164,9 @@ async def analyze_chat(payload: AnalysisRequest) :
     """Analyze chat messages to extract emotional tones, themes, and visual symbols"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "openai/o4-mini"
+        model = payload.model if payload.model else "anthropic/claude-3-opus"
         if payload.user_type == UserType.PAID and not payload.model:
-            model = "openai/o4-mini"  # Use a better model for paid users
+            model = "anthropic/claude-3-opus"  # Use a better model for paid users
         
         # Format the messages for the prompt
         formatted_messages = ""
@@ -251,7 +251,7 @@ async def analyze_chat(payload: AnalysisRequest) :
         
         # Make the API request
         response_data = make_openrouter_request(
-            model="openai/o4-mini",
+            model="anthropic/claude-3-opus",
             messages=messages,
             temperature=0.5  # Lower temperature for more focused analysis
         )
@@ -374,9 +374,9 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         if payload.model and payload.model.strip() != "":
             model = payload.model
         elif payload.user_type == UserType.PAID:
-            model = "openai/o4-mini"
+            model = "anthropic/claude-3-opus"
         else:
-            model = "openai/o4-mini"
+            model = "anthropic/claude-3-opus"
         
         # Format the messages for the prompt
         formatted_messages = []
