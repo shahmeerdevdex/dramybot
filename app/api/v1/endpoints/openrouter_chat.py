@@ -79,14 +79,10 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
         
         # Create request data with message context
-        messages = [
-            {
-                "content": system_prompt,
-                "role": "system"  # Changed from 'assistant' to 'system' for proper role assignment
-            }
-        ]
+
         
         # Add previous messages as context (up to 8 messages)
+        chat_messages = ""
         if payload.last_messages and len(payload.last_messages) > 0:
             # Determine how many previous messages to include (up to 8)
             num_messages = min(len(payload.last_messages), 8)
@@ -95,16 +91,20 @@ async def stream_response_from_openrouter(payload: ChatRequest):
             for i in range(num_messages):
                 # Alternate between user and assistant roles
                 role = "user" if i % 2 == 0 else "assistant"
-                messages.append({
-                    "content": payload.last_messages[i],
-                    "role": role
-                })
+                chat_messages = chat_messages + f"{role} : {payload.last_messages[i]} \n"
         
         # Add the current user prompt
-        messages.append({
-            "content": payload.user_prompt,
-            "role": "user"
-        })
+        messages = [
+            {
+                "content": system_prompt + chat_messages,
+                "role": "system"  # Changed from 'assistant' to 'system' for proper role assignment
+            },
+            {
+                "content": f"here are the previous messages {chat_messages}",
+                "role": "user"
+            }
+        ]
+
         print(payload)
         print("messages:", messages)
         # Stream the response from OpenRouter
