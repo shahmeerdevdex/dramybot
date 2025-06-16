@@ -207,6 +207,7 @@ async def analyze_chat(payload: AnalysisRequest):
             return {
                 "statusCode": 400,
                 "message": "Need more context of dream to interpret",
+                "dreamDescription": "NA",
                 "data": {
                     "title":'NA',
                     "shortText":'NA',
@@ -251,6 +252,9 @@ async def analyze_chat(payload: AnalysisRequest):
             analysis['title'] = "Dream Analysis"
         if 'shortText' not in analysis:
             analysis['shortText'] = "A dream narrative with symbolic elements."
+        
+        if 'dreamDescription' not in analysis:
+            analysis['dreamDescription'] = "NA"
             
         # Ensure summary object has all required fields
         if 'summary' not in analysis or not isinstance(analysis['summary'], dict):
@@ -318,6 +322,7 @@ async def analyze_chat(payload: AnalysisRequest):
             data=AnalysisResponseData(
                 title=analysis['title'],
                 shortText=analysis['shortText'],
+                dreamDescription=analysis['dreamDescription'],
                 summary=analysis['summary'],
                 tones=tone_items,
                 themes=analysis['themes'],
@@ -332,6 +337,7 @@ async def analyze_chat(payload: AnalysisRequest):
             "data": {
                 "title": 'NA',
                 "shortText": 'NA',
+                "dreamDescription": "NA",
                 "summary": {
                     "dreamEntry": "NA",
                     "summarizedAnalysis": "NA",

@@ -87,6 +87,7 @@ class AnalysisRequest(BaseModel):
 class AnalysisResponseData(BaseModel):
     title: str
     shortText: str
+    dreamDescription: str
     summary: dict = {
         "dreamEntry": "",
         "summarizedAnalysis": "",

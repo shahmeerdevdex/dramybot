@@ -1,6 +1,6 @@
 import os
 from app.schemas.common import UserType, ChatMode
-
+from app.core.prompts import chat_prompt
 # API Security
 SECRET_KEY = "DreamyBot@2025!xNc84Kz1pYw!uEeR#9sLb"
 ALGORITHM = "HS256"
@@ -17,8 +17,8 @@ def get_openrouter_api_key():
 MODEL_CONFIG = {
     UserType.GUEST: {
         ChatMode.GENERAL: {
-            "model": "anthropic/claude-3-haiku",
-            "system_prompt": "You are a helpful assistant that provides clear, concise, and accurate information.dont include greetings unless user prompt  is  hey,hi,hello, etc"
+            "model": "openai/gpt-4o-mini",
+            "system_prompt": chat_prompt
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-sonnet",
@@ -27,8 +27,8 @@ MODEL_CONFIG = {
     },
     UserType.PAID: {
         ChatMode.GENERAL: {
-            "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a premium assistant named DreamyBot that provides detailed, nuanced, and comprehensive information..dont include greetings unless user prompt  is  hey,hi,hello, etc"
+            "model": "openai/gpt-4o-mini",
+            "system_prompt": chat_prompt
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
