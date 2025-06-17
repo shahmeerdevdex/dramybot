@@ -20,7 +20,7 @@ async def dreamer_questions_stream(payload: DreamerQuestionsRequest):
     messages = [
         {"role": "system", "content": DREAMER_QUESTIONS_PROMPT},
         {"role": "user", "content": payload.user_prompt},
-        {"role": "assistant", "content": f"here are the previous messages you have asked with user : {payload.last_messages}"}
+        {"role": "assistant", "content": f"here are the previous messages you have asked with user : {payload.last_messages}, \n very important note: if the user is not sharing anything you should ask the next question you have to take answer for all questions "}
     ]
     print(messages)
     return StreamingResponse(
