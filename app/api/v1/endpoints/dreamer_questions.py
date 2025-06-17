@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from app.core.prompts import DREAMER_QUESTIONS_PROMPT,END_CHAT_PROMPT
+from app.core.prompts import DREAMER_QUESTIONS_PROMPT
 from app.utils.openrouter import make_streaming_request
 
 router = APIRouter()
@@ -18,11 +18,10 @@ async def dreamer_questions_stream(payload: DreamerQuestionsRequest):
     """
     model = "openai/gpt-4o"
     messages = [
-        {"role": "system", "content": DREAMER_QUESTIONS_PROMPT},
-        {"role": "user", "content": payload.user_prompt+f"\n {END_CHAT_PROMPT}"},
+        {"role": "user", "content": DREAMER_QUESTIONS_PROMPT+"here is user response :"+payload.user_prompt},
         {"role": "assistant", "content": f"here are the previous messages you have asked with user : {payload.last_messages}, \n very important note: if the user is not sharing anything you should ask the next question you have to take answer for all questions and dont repeat the questions that you have already asked. The questions you have asked are attached please me make sure dont repeat questions when you are done with the questions just response with 'i have asked all question. Thank you'"}
     
-    ]
+    ]  
     print(messages)
     return StreamingResponse(
         stream_response_from_openrouter(model, messages, payload.temperature),
