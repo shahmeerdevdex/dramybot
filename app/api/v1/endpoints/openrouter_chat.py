@@ -73,14 +73,12 @@ async def stream_response_from_openrouter(payload: ChatRequest):
     try:
         # Get the appropriate model and system prompt based on user type and chat mode
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
-        
         # Use the model and system prompt from the request if provided, otherwise use the default
         model = payload.model if payload.model else chat_config["model"]
         system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
         
         # Create request data with message context
 
-        
         # Add previous messages as context (up to 8 messages)
         chat_messages = ""
         if payload.last_messages and len(payload.last_messages) > 0:
@@ -96,11 +94,11 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         # Add the current user prompt
         messages = [
             {
-                "content": system_prompt + chat_messages,
+                "content": system_prompt,
                 "role": "system"
             },
             {
-                "content": f"{payload.user_prompt} and here are the previous messages {chat_messages}",
+                "content": f"{payload.user_prompt} and here are the previous messages {chat_messages} that can help you understand and answert the question ",
                 "role": "user"
             }
         ]

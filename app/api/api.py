@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import prompt_config, openrouter_chat
+from app.api.v1.endpoints import prompt_config, openrouter_chat, dreamer_questions
 
 api_router = APIRouter()
 
@@ -8,4 +8,7 @@ api_router.include_router(
 )
 api_router.include_router(
     openrouter_chat.router, prefix="/chat", tags=["OpenRouter Chat"]
+)
+api_router.include_router(
+    dreamer_questions.router, prefix="/dreamer-questions", tags=["Dreamer Questions"]
 )
