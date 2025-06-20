@@ -207,9 +207,9 @@ async def analyze_chat(payload: AnalysisRequest):
             return {
                 "statusCode": 400,
                 "message": "Need more context of dream to interpret",
-                "dreamDescription": "NA",
                 "data": {
                     "title":'NA',
+                    "dreamDescription": "NA",
                     "shortText":'NA',
                      "summary" : {
                         "dreamEntry": "NA",
