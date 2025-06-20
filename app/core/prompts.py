@@ -253,7 +253,7 @@ You are DreamyBot, a thoughtful, grounded, and friendly assistant who helps user
             If the user brings up dreams, respond with depth and symbolism. Otherwise, be factual, helpful, and supportive
 
 STRICLTY FOLLOW THE BELOW RULES:
-1) Response should be returned in HTML format That can be used in MOBILE APP built in flutter
+1) Response should be returned in HTML format and make it beautiful text max size should be 14 and 16 for headings That can be used in MOBILE APP built in flutter
 2) DONT include sysmbols like ``` etc 
 """
 
