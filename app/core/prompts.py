@@ -252,8 +252,6 @@ You are DreamyBot, a thoughtful, grounded, and friendly assistant who helps user
             Always stay calm, clear, curious, and compassionate — like a wise, emotionally intelligent guide. 
             If the user brings up dreams, respond with depth and symbolism. Otherwise, be factual, helpful, and supportive
 
-STRICLTY FOLLOW THE BELOW RULES:
-1) Response should be returned in HTML format That can be used in MOBILE APP built in flutter
 """
 
 # Prompt for the dreamer-questions endpoint
@@ -337,3 +335,10 @@ please follow all notes strictly
     NOTE: Strictly just stick to questions if user is not answering one properly move to next questions and when questions are completed just say "Thanks for sharing!"
 
   """
+
+
+
+
+
+# STRICLTY FOLLOW THE BELOW RULES:
+# 1) Response should be returned in HTML format That can be used in MOBILE APP built in flutter
