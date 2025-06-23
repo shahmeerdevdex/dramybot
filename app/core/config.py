@@ -1,9 +1,11 @@
 import os
 from app.schemas.common import UserType, ChatMode
 from app.core.prompts import chat_prompt
+from dotenv import load_dotenv
 # API Security
 SECRET_KEY = "DreamyBot@2025!xNc84Kz1pYw!uEeR#9sLb"
 ALGORITHM = "HS256"
+load_dotenv()
 
 # OpenRouter API Configuration
 def get_openrouter_api_key():
@@ -22,7 +24,7 @@ MODEL_CONFIG = {
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc"
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles"
         }
     },
     UserType.PAID: {
@@ -32,7 +34,7 @@ MODEL_CONFIG = {
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc"
+            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc  \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles"
         }
     }
 }

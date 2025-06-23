@@ -327,6 +327,9 @@ When all questions are done, respond with: "I have asked all questions. Thank yo
 find if any of the attached questions match the above questions context you have to skip that question and ask next question. AND DONT ASK TWO QUESTIONS IN SAME RESPONSE.  The user message will be the answer of the last message in the list which means that it will be your recently asked questions on which user has responded
 if you feel you should ask some your own questions or user response is not correct you can ask question again my responding the issue in reponse and also if user dont want to share some personal stuff move to 
 next question
+STRICLTY FOLLOW THE BELOW RULES:
+1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read
+2) Include heading some colors and styles
 
 
 """
