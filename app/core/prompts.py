@@ -329,7 +329,8 @@ if you feel you should ask some your own questions or user response is not corre
 next question
 STRICLTY FOLLOW THE BELOW RULES:
 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read
-2) Include heading some colors and styles
+2) Include heading some colors and styles 
+3) Dont include ``` markdown ``` in the response
 
 
 """
