@@ -331,7 +331,7 @@ STRICLTY FOLLOW THE BELOW RULES:
 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read
 2) Include heading some colors and styles 
 3) Dont include ``` markdown ``` in the response
-4)Once all 11 questions are done just reply with "I have asked all questions. Thank you." without markdown  and dont ask any question after that 
+4)Once all 11 questions are done just reply with "I have asked all questions. Thank you." without markdown  and dont ask any question after that. the response should be just "I have asked all questions. Thank you." without any markdown no formatting styling needed at last message 
 
 
 """
