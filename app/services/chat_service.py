@@ -396,13 +396,7 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         profile_content = "\n".join(formatted_messages)
         
         # Create the system prompt for profile summary
-        system_prompt = DREAM_FREE_USER.format(
-            Name=payload.name,
-            age=payload.age,
-            gender=payload.gender,
-            birthdate=payload.birthdate,
-            home_page_summary_block=payload.home_page_summary_block
-        )
+        system_prompt = dream_summary_prompt
         print("SYSTEM PROMPT SENT TO MODEL:\n", system_prompt)
         
         # Prepare the messages for the API request

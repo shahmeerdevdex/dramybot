@@ -145,6 +145,7 @@ async def analyze_chat_endpoint(payload: AnalysisRequest):
 
 @router.post("/profile-summary", response_model=ProfileSummaryResponse)
 async def profile_summary_endpoint(payload: ProfileSummaryRequest):
+    print("PROFILE SUMMARY ENDPOINT CALLED")
     """
     Generate a summary of a dreamer's profile based on Q&A messages.
     
