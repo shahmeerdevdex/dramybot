@@ -1,6 +1,6 @@
 import os
 from app.schemas.common import UserType, ChatMode
-from app.core.prompts import chat_prompt
+from app.core.prompts import chat_prompt,DREAM_CHAT_GENERAL,DREAM_USER_GUEST,DREAM_PAID_USER,DREAM_FREE_USER
 from dotenv import load_dotenv
 # API Security
 SECRET_KEY = "DreamyBot@2025!xNc84Kz1pYw!uEeR#9sLb"
@@ -20,23 +20,35 @@ MODEL_CONFIG = {
     UserType.GUEST: {
         ChatMode.GENERAL: {
             "model": "openai/gpt-4o-mini",
-            "system_prompt": chat_prompt
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-sonnet",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams with insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+            "system_prompt": f"{DREAM_USER_GUEST} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     },
     UserType.PAID: {
         ChatMode.GENERAL: {
             "model": "openai/gpt-4o-mini",
-            "system_prompt": chat_prompt
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
             "model": "anthropic/claude-3-opus",
-            "system_prompt": "You are a dream interpreter named DreamyBot and creative assistant. Help users explore their dreams and creative ideas with deep insight and imagination..dont include greetings unless user prompt  is  hey,hi,hello, etc  \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+            "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+        }
+    },
+
+     UserType.FREE: {
+        ChatMode.GENERAL: {
+            "model": "openai/gpt-4o-mini",
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
+        },
+        ChatMode.DREAM: {
+            "model": "anthropic/claude-3-opus",
+            "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     }
+
 }
 
 def get_chat_config(user_type: UserType, chat_mode: ChatMode):

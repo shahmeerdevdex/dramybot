@@ -8,68 +8,68 @@ from app.schemas.chat import (
 from app.schemas.common import UserType, ChatMode
 from app.core.config import get_chat_config
 from app.utils.openrouter import make_openrouter_request, extract_json_from_text
-from app.core.prompts import combined_prompt,summary_prompt,dream_summary_prompt
+from app.core.prompts import combined_prompt,summary_prompt,dream_summary_prompt, DREAM_DICTIONARY_PROMPT, DREAM_FREE_USER
 
 
 async def generate_chat(payload: ChatRequest) -> ChatResponse:
     """Generate a chat response using the OpenRouter API"""
     try:
-        # Get the appropriate model and system prompt based on user type and chat mode
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
-        
-        # Use the model and system prompt from the request if provided, otherwise use the default
         model = payload.model if payload.model else chat_config["model"]
-        system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
-
-        # Prepare messages with context from previous messages
-        messages = [
-            {
-                "content": system_prompt,
-                "role": "system"
-            }
+        # Always build the prompt with all user info and call the model
+        if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
+            system_prompt = DREAM_DICTIONARY_PROMPT
+            messages = [
+                {"content": system_prompt, "role": "system"},
+                {"content": payload.user_prompt, "role": "user"}
+            ]
+        elif hasattr(payload, 'feature') and payload.feature in ('dream_chat', 'general_chat'):
+            # Build a system prompt with all user info
+            system_prompt = (
+                f"{payload.name}, you are {payload.age} years old, {payload.gender}. "
+                f"Birthday: {payload.birthdate}. "
+                f"User Onboarding Summary: {payload.onboarding_summary} "
+                f"- User Memory Bank: {payload.memory_bank} "
+                f"- User Dream Log: {payload.dream_log}.\n"
+                f"Dream: {payload.user_prompt}\n"
+                "Interpret this dream in a way that references the user's age, name, and background."
+            )
+            messages = [
+                {"content": system_prompt, "role": "system"}
+            ]
+            if payload.last_messages and len(payload.last_messages) > 0:
+                num_messages = min(len(payload.last_messages), 8)
+                for i in range(num_messages):
+                    role = "user" if i % 2 == 0 else "assistant"
+                    messages.append({"content": payload.last_messages[i], "role": role})
+            messages.append({"content": payload.user_prompt, "role": "user"})
+        else:
+            system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
+            messages = [
+                {"content": system_prompt, "role": "system"}
         ]
-        
-        # Add previous messages as context (up to 8 messages)
         if payload.last_messages and len(payload.last_messages) > 0:
-            # Determine how many previous messages to include (up to 8)
             num_messages = min(len(payload.last_messages), 8)
-            
-            # Add the previous messages to the context
             for i in range(num_messages):
-                # Alternate between user and assistant roles
                 role = "user" if i % 2 == 0 else "assistant"
-                messages.append({
-                    "content": payload.last_messages[i],
-                    "role": role
-                })
-        
-        # Add the current user prompt
-        messages.append({
-            "content": payload.user_prompt,
-            "role": "user"
-        })
-
-        # Make the API request
+                messages.append({"content": payload.last_messages[i], "role": role})
+            messages.append({"content": payload.user_prompt, "role": "user"})
         response_data = make_openrouter_request(
             model=model,
             messages=messages,
             temperature=payload.temperature
         )
-        
-        # Extract the response text
         reply = response_data["choices"][0]["message"]["content"]
-        
         return ChatResponse(
             statusCode=200,
             message="fetch sucessfully",
             data=ChatResponseData(response=reply)
         )
-        
     except Exception as e:
         return ChatResponse(
             statusCode=500,
             message=str(e),
-            data=None
+            data=ChatResponseData(response="An error occurred: {}".format(str(e)))
         )
 
 
@@ -209,7 +209,7 @@ async def analyze_chat(payload: AnalysisRequest):
                 "message": "Need more context of dream to interpret",
                 "data": {
                     "title":'NA',
-                    "dreamDescription": "NA",
+                      "dreamDescription": "NA",
                     "shortText":'NA',
                      "summary" : {
                         "dreamEntry": "NA",
@@ -396,14 +396,14 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         profile_content = "\n".join(formatted_messages)
         
         # Create the system prompt for profile summary
-        system_prompt = """You are a profile summarization assistant. 
-        
-Your task is to analyze a series of questions and answers about a person's profile and generate a concise, insightful summary that captures the essence of who they are.
-
-Provide your summary in valid JSON format with this field:
-- summary: A concise summary of the person's profile based on the Q&A
-
-Ensure your response is ONLY the JSON object, nothing else."""
+        system_prompt = DREAM_FREE_USER.format(
+            Name=payload.name,
+            age=payload.age,
+            gender=payload.gender,
+            birthdate=payload.birthdate,
+            home_page_summary_block=payload.home_page_summary_block
+        )
+        print("SYSTEM PROMPT SENT TO MODEL:\n", system_prompt)
         
         # Prepare the messages for the API request
         messages = [
@@ -446,3 +446,6 @@ Ensure your response is ONLY the JSON object, nothing else."""
             message=str(e),
             data=ProfileSummaryData(summary="A profile of an individual based on questions and answers.")
         )
+DREAM_FREE_USER = """
+Hi {name}! At {age} years old, your dream of {user_prompt} reflects your current journey. As a {gender} born on {birthdate}, you may be processing recent feelings about {home_page_summary_block}. ...
+"""

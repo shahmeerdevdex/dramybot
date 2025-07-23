@@ -20,6 +20,16 @@ class ChatRequest(BaseModel):
     temperature: Optional[float] = 0.7
     system_prompt: Optional[str] = ""
     user_prompt: str
+
+    # Add these fields:
+    name: Optional[str] = ""
+    age: Optional[int] = None
+    gender: Optional[str] = ""
+    birthdate: Optional[str] = ""
+    home_page_summary_block: Optional[str] = ""
+    onboarding_summary: Optional[str] = ""
+    memory_bank: Optional[str] = ""
+    dream_log: Optional[str] = ""
     
     @validator('user_prompt')
     def user_prompt_must_not_be_empty(cls, v):

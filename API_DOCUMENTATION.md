@@ -143,7 +143,7 @@ data: [DONE]
   "chat_mode": "dream",
   "feature": "dream_interpretation",
   "last_messages": ["Hello"],
-  "user_prompt": "Interpret this dream: I was flying over a city made of books."
+  "user_prompt": "Interpret this dream: I was swimming in an ocean of stars."
 }
 ```
 
@@ -480,3 +480,69 @@ print("Emojis:")
 for emoji, count in data['emojis'].items():
     print(f"  {emoji}: {count}")
 ```
+
+---
+
+Great question! To verify that the model is following the `DREAM_DICTIONARY_PROMPT` and behaving as intended, you should:
+
+1. **Send a request to your API endpoint** that uses this prompt (or directly to the model if you’re testing locally).
+2. **Provide an input that matches the expected use case**—in this case, a dream symbol, theme, or situation.
+3. **Check the output** to ensure it matches the rules in the prompt:  
+   - In-depth, personalized interpretation  
+   - Focused only on the symbol’s significance in your dreams  
+   - No advice, no preface, no hyperbole, just a 3-4 sentence interpretation
+
+---
+
+### Example Input
+
+You can use the `/chat/generate` endpoint (or whichever endpoint uses this prompt) and send a payload like:
+
+```json
+{
+  "user_id": "test_user_123",
+  "user_type": "guest",
+  "chat_mode": "dream",
+  "feature": "dream_chat",
+  "last_messages": [],
+  "user_prompt": "I dreamed I was flying over a city at night.",
+  "name": "Alex",
+  "age": 28,
+  "gender": "male",
+  "birthdate": "1995-04-12",
+  "home_page_summary_block": "Recently, Alex has been exploring new career opportunities and feeling a mix of excitement and anxiety about the future."
+}
+```
+
+---
+
+### What to Look for in the Output
+
+- The response should be a **3-4 sentence interpretation** of what the snake symbol means for you, based on dream science, psychology, etc.
+- It should **not** give advice, preface the answer, or include unrelated information.
+- It should be **personalized** and **straightforward**.
+
+---
+
+### How to Test
+
+1. **Start your FastAPI server**:
+   ```sh
+   uvicorn app.main:app --reload
+   ```
+2. **Go to** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+3. **Find the endpoint** (e.g., `/chat/generate`) and try the example input above.
+4. **Review the output** for compliance with the prompt.
+
+---
+
+### Example Output (What You Want to See)
+
+> In your dreams, the snake often represents transformation and renewal, drawing from deep subconscious processes. Its appearance may signal that you are processing hidden fears or desires, especially those related to change or healing. The recurring presence of this symbol in your dream logs suggests a personal journey through uncertainty or growth. This symbol is significant for you as it highlights the interplay between vulnerability and resilience in your inner world.
+
+---
+
+If the output matches the style and rules of the prompt, your model is working as intended!  
+If not, you may need to check which prompt is being sent to the model or adjust your backend logic.
+
+Let me know if you want a ready-to-use test script or further help!

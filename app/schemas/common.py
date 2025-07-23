@@ -6,6 +6,7 @@ class UserType(str, Enum):
     """User type enumeration"""
     GUEST = "guest"
     PAID = "paid"
+    FREE = "free"
     
 class ChatMode(str, Enum):
     """Chat mode enumeration"""

@@ -40,6 +40,7 @@ def make_openrouter_request(model: str, messages: List[Dict[str, str]], temperat
 async def make_streaming_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.7) -> AsyncGenerator[bytes, None]:
     """Make a streaming request to the OpenRouter API"""
     api_key = get_openrouter_api_key()
+    print("api_key:", api_key)
     
     # Set up headers
     headers = {

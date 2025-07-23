@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 import httpx
 import json
+from app.core.config import get_openrouter_api_key
 
 
 app = FastAPI()
@@ -14,7 +15,7 @@ async def chat(question: str):
     async def generate():
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": f"Bearer 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",
+            "Authorization": f"Bearer {get_openrouter_api_key()}",
             "Content-Type": "application/json",
         }
         payload = {

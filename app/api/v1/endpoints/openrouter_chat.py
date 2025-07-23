@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from app.schemas.chat import (
     ChatRequest, ChatResponse,
     SummaryRequest, SummaryResponse,
@@ -14,6 +14,8 @@ from app.services.chat_service import (
 )
 from app.utils.openrouter import make_streaming_request
 from app.core.config import get_chat_config
+from app.core.prompts import DREAM_DICTIONARY_PROMPT
+import json
 
 # Create API router
 router = APIRouter()
@@ -61,58 +63,56 @@ async def generate_streaming_response(payload: ChatRequest):
 
 
 async def stream_response_from_openrouter(payload: ChatRequest):
-    """
-    Stream a response from the OpenRouter API.
-    
-    Args:
-        payload: The chat request payload
-        
-    Returns:
-        AsyncGenerator: A generator that yields SSE events
-    """
     try:
-        # Get the appropriate model and system prompt based on user type and chat mode
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
-        # Use the model and system prompt from the request if provided, otherwise use the default
         model = payload.model if payload.model else chat_config["model"]
-        system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
-        
-        # Create request data with message context
-
-        # Add previous messages as context (up to 8 messages)
-        chat_messages = ""
-        if payload.last_messages and len(payload.last_messages) > 0:
-            # Determine how many previous messages to include (up to 8)
-            num_messages = min(len(payload.last_messages), 8)
-            
-            # Add the previous messages to the context
-            for i in range(num_messages):
-                # Alternate between user and assistant roles
-                role = "user" if i % 2 == 0 else "assistant"
-                chat_messages = chat_messages + f"{role} : {payload.last_messages[i]} \n"
-        
-        # Add the current user prompt
-        messages = [
-            {
-                "content": system_prompt,
-                "role": "system"
-            },
-            {
-                "content": f"{payload.user_prompt} and here are the previous messages {chat_messages} that can help you understand and answert the question ",
-                "role": "user"
-            }
-        ]
-
-        print(payload)
-        print("messages:", messages)
-        # Stream the response from OpenRouter
+        # Always build the prompt with all user info and call the model
+        if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
+            system_prompt = DREAM_DICTIONARY_PROMPT
+            messages = [
+                {"content": system_prompt, "role": "system"},
+                {"content": payload.user_prompt, "role": "user"}
+            ]
+        elif hasattr(payload, 'feature') and payload.feature in ('dream_chat', 'general_chat', 'dream_free_user'):
+            # Build a system prompt with all user info
+            system_prompt = (
+                f"{payload.name}, you are {payload.age} years old, {payload.gender}. "
+                f"Birthday: {payload.birthdate}. "
+                f"User Onboarding Summary: {payload.onboarding_summary} "
+                f"- User Memory Bank: {payload.memory_bank} "
+                f"- User Dream Log: {payload.dream_log}.\n"
+                f"Dream: {payload.user_prompt}\n"
+                "Interpret this dream in a way that references the user's age, name, and background."
+            )
+            messages = [
+                {"content": system_prompt, "role": "system"}
+            ]
+            if payload.last_messages and len(payload.last_messages) > 0:
+                num_messages = min(len(payload.last_messages), 8)
+                for i in range(num_messages):
+                    role = "user" if i % 2 == 0 else "assistant"
+                    messages.append({"content": payload.last_messages[i], "role": role})
+            messages.append({"content": payload.user_prompt, "role": "user"})
+        else:
+            system_prompt = payload.system_prompt if payload.system_prompt else chat_config["system_prompt"]
+            messages = [
+                {"content": system_prompt, "role": "system"}
+            ]
+            if payload.last_messages and len(payload.last_messages) > 0:
+                num_messages = min(len(payload.last_messages), 8)
+                for i in range(num_messages):
+                    role = "user" if i % 2 == 0 else "assistant"
+                    messages.append({"content": payload.last_messages[i], "role": role})
+            messages.append({"content": payload.user_prompt, "role": "user"})
         async for chunk in make_streaming_request(model, messages, payload.temperature):
             yield chunk
-            
     except Exception as e:
-        # Handle errors
         yield f"data: {{\"statusCode\": 500, \"message\": \"{str(e)}\", \"data\": null}}\n\n".encode('utf-8')
-        yield f"data: [DONE]\n\n".encode('utf-8')
+        yield b"data: [DONE]\n\n"
+
+def chunk_string(s, chunk_size):
+    for i in range(0, len(s), chunk_size):
+        yield s[i:i+chunk_size]
 
 
 @router.post("/summarize", response_model=SummaryResponse)
