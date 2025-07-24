@@ -42,20 +42,28 @@ def get_summary_from_openrouter(prompt: str, texts: List[str]) -> str:
     else:
         raise HTTPException(status_code=500, detail=f"Failed to get summary from OpenRouter: {response.text}")
 
-@router.post("/summarize/memory-bank", response_model=SummaryResponse)
+@router.post("/summarize/memory-bank")
 def summarize_memory_bank(request: SummaryRequest):
     prompt = (
         "You are an expert summarizer. Summarize the following memory bank entries in a concise paragraph, "
         "highlighting key themes and important details."
     )
     summary = get_summary_from_openrouter(prompt, request.texts)
-    return SummaryResponse(summary=summary)
+    return {
+        "statusCode": 200,
+        "message": "fetch sucessfully",
+        "data": {"summary": summary}
+    }
 
-@router.post("/summarize/dream-logs", response_model=SummaryResponse)
+@router.post("/summarize/dream-logs")
 def summarize_dream_logs(request: SummaryRequest):
     prompt = (
         "You are an expert dream analyst. Summarize the following dream logs, focusing on main events, "
         "emotions, and recurring patterns."
     )
     summary = get_summary_from_openrouter(prompt, request.texts)
-    return SummaryResponse(summary=summary)
+    return {
+        "statusCode": 200,
+        "message": "fetch sucessfully",
+        "data": {"summary": summary}
+    }
