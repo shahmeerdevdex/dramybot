@@ -397,14 +397,11 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         profile_content = "\n".join(formatted_messages)
         
         # Create the system prompt for profile summary
-        system_prompt = DREAM_FREE_USER.format(
-            Name=payload.name,
-            age=payload.age,
-            gender=payload.gender,
-            birthdate=payload.birthdate,
-            home_page_summary_block=payload.home_page_summary_block
-        )
-        print("SYSTEM PROMPT SENT TO MODEL:\n", system_prompt)
+        system_prompt ="""You are a profile summarization assistant.
+        Your task is to analyze a series of questions and answers about a person's profile and generate a concise, insightful summary that captures the essence of who they are.
+        Provide your summary in valid JSON format with this field:
+        - summary: A concise summary of the person's profile based on the Q&A
+        Ensure your response is ONLY the JSON object, nothing else."""
         
         # Prepare the messages for the API request
         messages = [
