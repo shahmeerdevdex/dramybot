@@ -16,6 +16,7 @@ async def generate_chat(payload: ChatRequest) -> ChatResponse:
     try:
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
         model = payload.model if payload.model else chat_config["model"]
+        print(f"Model selected for chat: {model}")
         # Always build the prompt with all user info and call the model
         if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
             system_prompt = DREAM_DICTIONARY_PROMPT
@@ -396,7 +397,13 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         profile_content = "\n".join(formatted_messages)
         
         # Create the system prompt for profile summary
-        system_prompt = dream_summary_prompt
+        system_prompt = DREAM_FREE_USER.format(
+            Name=payload.name,
+            age=payload.age,
+            gender=payload.gender,
+            birthdate=payload.birthdate,
+            home_page_summary_block=payload.home_page_summary_block
+        )
         print("SYSTEM PROMPT SENT TO MODEL:\n", system_prompt)
         
         # Prepare the messages for the API request

@@ -2,6 +2,9 @@ import os
 from app.schemas.common import UserType, ChatMode
 from app.core.prompts import chat_prompt,DREAM_CHAT_GENERAL,DREAM_USER_GUEST,DREAM_PAID_USER,DREAM_FREE_USER
 from dotenv import load_dotenv
+load_dotenv()  # This loads the variables from .env into your environment
+
+
 # API Security
 SECRET_KEY = "DreamyBot@2025!xNc84Kz1pYw!uEeR#9sLb"
 ALGORITHM = "HS256"
@@ -19,36 +22,34 @@ def get_openrouter_api_key():
 MODEL_CONFIG = {
     UserType.GUEST: {
         ChatMode.GENERAL: {
-            "model": "openai/gpt-4o-mini",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
-            "model": "anthropic/claude-3-sonnet",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": f"{DREAM_USER_GUEST} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     },
     UserType.PAID: {
         ChatMode.GENERAL: {
-            "model": "openai/gpt-4o-mini",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
-            "model": "anthropic/claude-3-opus",
+            "model": "google/gemini-pro-1.5",
             "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     },
-
-     UserType.FREE: {
+    UserType.FREE: {
         ChatMode.GENERAL: {
-            "model": "openai/gpt-4o-mini",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
-            "model": "anthropic/claude-3-opus",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     }
-
 }
 
 def get_chat_config(user_type: UserType, chat_mode: ChatMode):

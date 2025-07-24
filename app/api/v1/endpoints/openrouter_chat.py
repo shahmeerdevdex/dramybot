@@ -66,6 +66,7 @@ async def stream_response_from_openrouter(payload: ChatRequest):
     try:
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
         model = payload.model if payload.model else chat_config["model"]
+        print(f"Model selected for streaming chat: {model}")
         # Always build the prompt with all user info and call the model
         if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
             system_prompt = DREAM_DICTIONARY_PROMPT
@@ -145,7 +146,6 @@ async def analyze_chat_endpoint(payload: AnalysisRequest):
 
 @router.post("/profile-summary", response_model=ProfileSummaryResponse)
 async def profile_summary_endpoint(payload: ProfileSummaryRequest):
-    print("PROFILE SUMMARY ENDPOINT CALLED")
     """
     Generate a summary of a dreamer's profile based on Q&A messages.
     
