@@ -82,8 +82,8 @@ async def stream_response_from_openrouter(payload: ChatRequest):
                 f"User Onboarding Summary: {payload.onboarding_summary} "
                 f"- User Memory Bank: {payload.memory_bank} "
                 f"- User Dream Log: {payload.dream_log}.\n"
-                f"Dream: {payload.user_prompt}\n"
-                "Interpret this dream in a way that references the user's age, name, and background."
+                f"Dream: {payload.user_prompt}\n",
+                chat_config["system_prompt"]
             )
             messages = [
                 {"content": system_prompt, "role": "system"}
