@@ -64,6 +64,7 @@ async def generate_streaming_response(payload: ChatRequest):
 
 async def stream_response_from_openrouter(payload: ChatRequest):
     try:
+        messages = []
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
         model = payload.model if payload.model else chat_config["model"]
         print(f"Model selected for streaming chat: {model}")
@@ -76,18 +77,21 @@ async def stream_response_from_openrouter(payload: ChatRequest):
             ]
         elif hasattr(payload, 'feature') and payload.feature in ('dream_chat', 'general_chat', 'dream_free_user'):
             # Build a system prompt with all user info
-            system_prompt = (
-                f"{payload.name}, you are {payload.age} years old, {payload.gender}. "
-                f"Birthday: {payload.birthdate}. "
-                f"User Onboarding Summary: {payload.onboarding_summary} "
-                f"- User Memory Bank: {payload.memory_bank} "
-                f"- User Dream Log: {payload.dream_log}.\n"
-                f"Dream: {payload.user_prompt}\n",
-                chat_config["system_prompt"]
-            )
+            system_prompt = f''' 
+                {payload.name}, is  of  {payload.age} years old, {payload.gender}. 
+                Birthday: {payload.birthdate}. 
+                User Onboarding Summary: {payload.onboarding_summary} 
+                - User Memory Bank: {payload.memory_bank} 
+                - User Dream Log: {payload.dream_log}.\n
+                "Dream: {payload.user_prompt}\n,
+                {chat_config["system_prompt"]}
+            
+            '''
+
             messages = [
                 {"content": system_prompt, "role": "system"}
             ]
+            print(messages)
             if payload.last_messages and len(payload.last_messages) > 0:
                 num_messages = min(len(payload.last_messages), 8)
                 for i in range(num_messages):
