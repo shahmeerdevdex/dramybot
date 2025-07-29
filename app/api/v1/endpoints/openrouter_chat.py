@@ -109,7 +109,7 @@ async def stream_response_from_openrouter(payload: ChatRequest):
                     role = "user" if i % 2 == 0 else "assistant"
                     messages.append({"content": payload.last_messages[i], "role": role})
             messages.append({"content": payload.user_prompt, "role": "user"})
-        async for chunk in make_streaming_request(model, messages, payload.temperature):
+        async for chunk in make_streaming_request(model, messages, chat_config["temperature"]):
             yield chunk
     except Exception as e:
         yield f"data: {{\"statusCode\": 500, \"message\": \"{str(e)}\", \"data\": null}}\n\n".encode('utf-8')

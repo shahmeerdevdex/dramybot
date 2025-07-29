@@ -30,31 +30,79 @@ MODEL_CONFIG = {
     UserType.GUEST: {
         ChatMode.GENERAL: {
             "model": "google/gemma-3-27b-it",
-            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt,
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         },
         ChatMode.DREAM: {
             "model": "google/gemma-3-27b-it",
-            "system_prompt": f"{DREAM_USER_GUEST} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+            "system_prompt": f"{DREAM_USER_GUEST} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams ",
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         }
     },
     UserType.PAID: {
         ChatMode.GENERAL: {
             "model": "google/gemma-3-27b-it",
-            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt,
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         },
         ChatMode.DREAM: {
             "model": "google/gemini-2.5-pro",
-            "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+            "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams ",
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         }
     },
     UserType.FREE: {
         ChatMode.GENERAL: {
             "model": "google/gemma-3-27b-it",
-            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
+            "system_prompt": DREAM_CHAT_GENERAL + chat_prompt,
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         },
         ChatMode.DREAM: {
             "model": "google/gemma-3-27b-it",
-            "system_prompt": f"{DREAM_FREE_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
+            "system_prompt": f"{DREAM_FREE_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams ",
+            "temperature": 0.48,
+            "top_p": 1.0,
+            "top_k": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 0,
+            "min_p": 0,
+            "top_a": 0
         }
     }
 }
