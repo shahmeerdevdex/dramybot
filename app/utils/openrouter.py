@@ -37,7 +37,7 @@ def make_openrouter_request(model: str, messages: List[Dict[str, str]], temperat
     response.raise_for_status()
     return response.json()
 
-async def make_streaming_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.7) -> AsyncGenerator[bytes, None]:
+async def make_streaming_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.5) -> AsyncGenerator[bytes, None]:
     """Make a streaming request to the OpenRouter API"""
     if model == "google/gemini-2.5-pro":
         api_key = get_openrouter_gemini_key()
@@ -56,7 +56,15 @@ async def make_streaming_request(model: str, messages: List[Dict[str, str]], tem
         "model": model,
         "messages": messages,
         "stream": True,
-        "temperature": temperature
+        "temperature": temperature,
+        "top_p": 1.0,  # 0.0 to 1.0, default 1.0
+        "top_k": 0,  # 0 or above, default 0
+        "frequency_penalty": 0.0,  # -2.0 to 2.0, default 0.0
+        "presence_penalty": 0.0,  # -2.0 to 2.0, default 0.0
+        "repetition_penalty": 1.0,  # 0.0 to 2.0, default 1.0
+        "min_p": 0.0,  # 0.0 to 1.0, default 0.0
+        "top_a": 0.0,  # 0.0 to 1.0, default 0.0
+        "max_tokens": 0,  # optional integer limit
     }
     
     # Use aiohttp for async HTTP requests
