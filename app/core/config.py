@@ -18,6 +18,13 @@ def get_openrouter_api_key():
         raise ValueError("OpenRouter API key not configured")
     return api_key
 
+def get_openrouter_gemini_key():
+    """Get the OpenRouter API key from environment variables"""
+    api_key = os.environ.get("OPENROUTER_GEMINI_KEY")
+    if not api_key:
+        raise ValueError("OpenRouterGemini API key not configured")
+    return api_key
+
 # Model Configuration for different user types and chat modes
 MODEL_CONFIG = {
     UserType.GUEST: {
@@ -36,7 +43,7 @@ MODEL_CONFIG = {
             "system_prompt": DREAM_CHAT_GENERAL + chat_prompt
         },
         ChatMode.DREAM: {
-            "model": "google/gemini-pro-1.5",
+            "model": "google/gemini-2.5-pro",
             "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n2) Include heading some colors and styles \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams "
         }
     },

@@ -4,7 +4,7 @@ import requests
 import aiohttp
 import asyncio
 from typing import Dict, List, Any, AsyncGenerator
-from app.core.config import get_openrouter_api_key
+from app.core.config import get_openrouter_api_key, get_openrouter_gemini_key
 
 def extract_json_from_text(text: str) -> Dict[str, Any]:
     """Extract JSON from text that may contain markdown or other formatting"""
@@ -39,7 +39,10 @@ def make_openrouter_request(model: str, messages: List[Dict[str, str]], temperat
 
 async def make_streaming_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.7) -> AsyncGenerator[bytes, None]:
     """Make a streaming request to the OpenRouter API"""
-    api_key = get_openrouter_api_key()
+    if model == "google/gemini-2.5-pro":
+        api_key = get_openrouter_gemini_key()
+    else:
+        api_key = get_openrouter_api_key()
     print("api_key:", api_key)
     
     # Set up headers
