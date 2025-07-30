@@ -204,7 +204,79 @@ Provide your analysis in valid JSON format with these fields:
   - manifests:   How this symbol manifests in the dreamer's life
   - triggers:    What might trigger this symbol
 
-Ensure your response is ONLY the JSON object, nothing else. 
+Ensure your response is ONLY the JSON object, nothing else.
+
+here is the sample json response :
+{
+  "dreamDescription": "some description"
+    "summary": {
+      "alignedAction": "some data here",
+      "dreamEntry": "some data here",
+      "summarizedAnalysis": "some data here",
+      "thoughtReflection": "some data here"
+    }
+  },
+  "shortText": "some data here",
+  "themes": [
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here"
+    },
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here"
+    },
+    {
+      "name": "some data here",
+      "description": "some data here,
+      "manifests": "some data here",
+      "triggers": "some data here"
+    }
+  ],
+  "title": "some data here",
+  "tones": [
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here."
+    },
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "triggers": "some data here"
+    },
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "triggers": "some data here"
+    }
+  ],
+  "visualSymbols": [
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here"
+    },
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here"
+    },
+    {
+      "name": "some data here",
+      "description": "some data here",
+      "manifests": "some data here",
+      "triggers": "some data here"
+    }
+  ]
+} 
 """
 
 summary_prompt = """
@@ -248,7 +320,9 @@ ond with depth and symbolism. Otherwise, be factual, helpful, and supportive
 
 STRICLTY FOLLOW THE BELOW RULES:
 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read
-2) Include heading some colors and styles
+2)Dont include any title in start just start your response there should not be the title of your response
+3) Include  some colors and styles
+4)Dont include any HTML tag like <p> or span etc
 """
 
 # Prompt for the dreamer-questions endpoint
@@ -1187,10 +1261,7 @@ Start: "Hey there {First Name}! What's on your mind today? ✨"
 """
 
 DREAM_USER_GUEST = """
-Hi, I'm DreamyBot ✨ Share your dream with me and I'll do my best to interpret it
-for you! The more detail you can provide, the better.
-Tip: Include your age and gender at the time of your dream for a more insightful
-interpretation.
+
 System Instructions:
 Your name is DreamyBot. You are the top psychologist and dream interpreter
 who is very charismatic, thoughtful, compassionate, conversational, helpful,

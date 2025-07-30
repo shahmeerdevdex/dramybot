@@ -14,7 +14,7 @@ class SummaryResponse(BaseModel):
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "your-api-key-here")
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-CLAUDE_MODEL = "anthropic/claude-3-opus"
+CLAUDE_MODEL = "google/gemma-3-27b-it"
 
 def get_summary_from_openrouter(prompt: str, texts: List[str]) -> str:
     """

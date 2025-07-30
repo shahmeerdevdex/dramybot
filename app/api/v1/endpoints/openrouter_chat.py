@@ -68,11 +68,12 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
         model = payload.model if payload.model else chat_config["model"]
         print(f"Model selected for streaming chat: {model}")
+        print(f"payload: {payload}")
         # Always build the prompt with all user info and call the model
         if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
             system_prompt = DREAM_DICTIONARY_PROMPT
             messages = [
-                {"content": system_prompt, "role": "system"},
+                {"content": system_prompt, "role": "assistant"},
                 {"content": payload.user_prompt, "role": "user"}
             ]
         elif hasattr(payload, 'feature') and payload.feature in ('dream_chat', 'general_chat', 'dream_free_user'):
@@ -83,13 +84,12 @@ async def stream_response_from_openrouter(payload: ChatRequest):
                 User Onboarding Summary: {payload.onboarding_summary} 
                 - User Memory Bank: {payload.memory_bank} 
                 - User Dream Log: {payload.dream_log}.\n
-                "Dream: {payload.user_prompt}\n,
                 {chat_config["system_prompt"]}
             
             '''
 
             messages = [
-                {"content": system_prompt, "role": "system"}
+                {"content": system_prompt, "role": "assistant"}
             ]
             print(messages)
             if payload.last_messages and len(payload.last_messages) > 0:
