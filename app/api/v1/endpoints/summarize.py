@@ -61,6 +61,7 @@ def summarize_dream_logs(request: SummaryRequest):
         "You are an expert dream analyst. Summarize the following dream logs, focusing on main events, "
         "emotions, and recurring patterns."
     )
+    print("request:: ",request.texts)
     summary = get_summary_from_openrouter(prompt, request.texts)
     return {
         "statusCode": 200,

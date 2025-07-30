@@ -204,7 +204,10 @@ async def analyze_chat(payload: AnalysisRequest):
         # Extract the JSON from the response
         analysis = extract_json_from_text(analysis_text)
 
+        print("analysis ", analysis)
+
         if not analysis:
+            print("analysis is empty")
             return {
                 "statusCode": 400,
                 "message": "Need more context of dream to interpret",
@@ -316,6 +319,22 @@ async def analyze_chat(payload: AnalysisRequest):
             analysis['themes'] = ["Self-discovery", "Inner conflict", "Transformation"]
         if 'visualSymbols' not in analysis or not analysis['visualSymbols']:
             analysis['visualSymbols'] = ["Door", "Path", "Light"]
+        
+        response =  AnalysisResponse(
+            statusCode=200,
+            message="fetch sucessfully",
+            data=AnalysisResponseData(
+                title=analysis['title'],
+                shortText=analysis['shortText'],
+                dreamDescription=analysis['dreamDescription'],
+                summary=analysis['summary'],
+                tones=tone_items,
+                themes=analysis['themes'],
+                visualSymbols=analysis['visualSymbols']
+            )
+        )
+
+        print("response ", response )
             
         return AnalysisResponse(
             statusCode=200,
@@ -332,6 +351,7 @@ async def analyze_chat(payload: AnalysisRequest):
         )
         
     except Exception as e:
+        print("Exception ", e)
         return {
             "statusCode": 400,
             "message": f"{e}",

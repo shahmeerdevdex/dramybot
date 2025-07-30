@@ -126,7 +126,9 @@ SAMPLING_PARAMS = {
 
 combined_prompt= """
 You are a dream analysis assistant specializing in emotional and thematic analysis.
-
+  STRICT NOTE :
+     iF you see there is no dream defined Just return empty json {}
+     
 Your task is to analyze dream narratives and extract:
 1. A title for the dream  
 2. A short text summary object  
@@ -276,6 +278,9 @@ here is the sample json response :
       "triggers": "some data here"
     }
   ]
+  
+  STRICT NOTE :
+     iF you see there is no dream defined Just return empty json {}
 } 
 """
 
@@ -321,8 +326,7 @@ ond with depth and symbolism. Otherwise, be factual, helpful, and supportive
 STRICLTY FOLLOW THE BELOW RULES:
 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read
 2)Dont include any title in start just start your response there should not be the title of your response
-3) Include  some colors and styles
-4)Dont include any HTML tag like <p> or span etc
+3)Dont include any HTML tag like <p> or span etc
 """
 
 # Prompt for the dreamer-questions endpoint
