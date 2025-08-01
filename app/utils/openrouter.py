@@ -120,7 +120,6 @@ async def make_streaming_request(model: str, messages: List[Dict[str, str]], tem
                             data = json.loads(line[6:])
                             content = data.get("choices", [{}])[0].get("delta", {}).get("content")
                             if content:
-                                print("in chunk yield with data ", content)
                                 yield f"data: {json.dumps({
                                     'statusCode': 200,
                                     'message': 'fetch successfully',
