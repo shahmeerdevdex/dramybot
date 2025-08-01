@@ -77,7 +77,7 @@ async def dreamer_questions_stream(payload: DreamerQuestionsRequest):
             "Content-Type": "application/json",
         }
         payload = {
-            "model": "openai/gpt-4o",
+            "model": "openai/chatgpt-4o-latest",
             "messages": messages,
             "temperature": 0.7,
             "stream": True
@@ -100,7 +100,8 @@ async def dreamer_questions_stream(payload: DreamerQuestionsRequest):
                                     'message': 'fetch sucessfully',
                                     'data': {'response': content}
                                 })}\n\n"
-                        except Exception:
+                        except Exception as e:
+                            print("Issue with Stream : ", e)
                             continue
 
         # Send full response at the end
