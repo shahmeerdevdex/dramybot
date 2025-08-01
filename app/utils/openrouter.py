@@ -7,6 +7,7 @@ import asyncio
 from typing import Dict, List, Any, AsyncGenerator
 from app.core.config import get_openrouter_api_key, get_openrouter_gemini_key
 import httpx
+import traceback
 
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -137,4 +138,5 @@ async def make_streaming_request(model: str, messages: List[Dict[str, str]], tem
                 # Send a final event to indicate the end of the stream
                 yield f"data: [DONE]\n\n".encode('utf-8')
         except Exception as e:
-            print(f"Issue with Stream : {e}")
+
+            print(f"Issue with Stream : {traceback.format_exc()}")
