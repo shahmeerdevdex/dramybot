@@ -68,7 +68,6 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         chat_config = get_chat_config(payload.user_type, payload.chat_mode)
         model = payload.model if payload.model else chat_config["model"]
         print(f"Model selected for streaming chat: {model}")
-        print(f"payload: {payload}")
         # Always build the prompt with all user info and call the model
         if hasattr(payload, 'feature') and payload.feature == 'dream_dictionary':
             system_prompt = DREAM_DICTIONARY_PROMPT
@@ -91,7 +90,6 @@ async def stream_response_from_openrouter(payload: ChatRequest):
             messages = [
                 {"content": system_prompt, "role": "assistant"}
             ]
-            print(messages)
             if payload.last_messages and len(payload.last_messages) > 0:
                 num_messages = min(len(payload.last_messages), 8)
                 for i in range(num_messages):
@@ -112,6 +110,7 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         async for chunk in make_streaming_request(model, messages, chat_config["temperature"]):
             yield chunk
     except Exception as e:
+        print("Issue with Stream : ", e)
         yield f"data: {{\"statusCode\": 500, \"message\": \"{str(e)}\", \"data\": null}}\n\n".encode('utf-8')
         yield b"data: [DONE]\n\n"
 

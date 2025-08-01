@@ -1,5 +1,7 @@
 import re
 import json
+from sys import exception
+
 import aiohttp
 import asyncio
 from typing import Dict, List, Any, AsyncGenerator
@@ -92,44 +94,47 @@ async def make_streaming_request(model: str, messages: List[Dict[str, str]], tem
     
     # Use aiohttp for async HTTP requests
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=request_data
-        ) as response:
-            # Check if the request was successful
-            if response.status != 200:
-                error_text = await response.text()
-                error_msg = f"Error from OpenRouter API: {response.status} - {error_text}"
-                yield f"data: {json.dumps({'statusCode': response.status, 'message': error_msg, 'data': None})}\n\n".encode('utf-8')
-                return
-            
-            # Process the streaming response
-            async for line in response.content:
-                line = line.decode('utf-8').strip()
-                if not line:
-                    continue
-                    
-                # OpenRouter sends "data: [DONE]" to indicate the end of the stream
-                if line == "data: [DONE]":
-                    break
-                    
-                # Lines start with "data: " - remove this prefix
-                if line.startswith("data: "):
-                    json_str = line[6:]  # Remove "data: " prefix
-                    try:
-                        data = json.loads(json_str)
-                        if "choices" in data and len(data["choices"]) > 0:
-                            delta = data["choices"][0].get("delta", {})
-                            content = delta.get("content", "")
-                            if content:
-                                # Format as SSE event
-                                yield f"data: {json.dumps({'statusCode': 200, 'message': 'fetch sucessfully', 'data': {'response': content}})}\n\n".encode('utf-8')
-                                # Small delay to avoid overwhelming the client
-                                await asyncio.sleep(0.01)
-                    except json.JSONDecodeError as e:
-                        print(f"Error parsing JSON: {e} - Line: {line}")
+        try:
+            async with session.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
+                json=request_data
+            ) as response:
+                # Check if the request was successful
+                if response.status != 200:
+                    error_text = await response.text()
+                    error_msg = f"Error from OpenRouter API: {response.status} - {error_text}"
+                    yield f"data: {json.dumps({'statusCode': response.status, 'message': error_msg, 'data': None})}\n\n".encode('utf-8')
+                    return
+
+                # Process the streaming response
+                async for line in response.content:
+                    line = line.decode('utf-8').strip()
+                    if not line:
                         continue
-            
-            # Send a final event to indicate the end of the stream
-            yield f"data: [DONE]\n\n".encode('utf-8')
+
+                    # OpenRouter sends "data: [DONE]" to indicate the end of the stream
+                    if line == "data: [DONE]":
+                        break
+
+                    # Lines start with "data: " - remove this prefix
+                    if line.startswith("data: "):
+                        json_str = line[6:]  # Remove "data: " prefix
+                        try:
+                            data = json.loads(json_str)
+                            if "choices" in data and len(data["choices"]) > 0:
+                                delta = data["choices"][0].get("delta", {})
+                                content = delta.get("content", "")
+                                if content:
+                                    # Format as SSE event
+                                    yield f"data: {json.dumps({'statusCode': 200, 'message': 'fetch sucessfully', 'data': {'response': content}})}\n\n".encode('utf-8')
+                                    # Small delay to avoid overwhelming the client
+                                    await asyncio.sleep(0.01)
+                        except json.JSONDecodeError as e:
+                            print(f"Error parsing JSON: {e} - Line: {line}")
+                            continue
+
+                # Send a final event to indicate the end of the stream
+                yield f"data: [DONE]\n\n".encode('utf-8')
+        except Exception as e:
+            print(f"Issue with Stream : {e}")
