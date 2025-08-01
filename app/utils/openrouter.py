@@ -1,10 +1,12 @@
 import re
 import json
-import requests
 import aiohttp
 import asyncio
 from typing import Dict, List, Any, AsyncGenerator
 from app.core.config import get_openrouter_api_key, get_openrouter_gemini_key
+import httpx
+
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json_from_text(text: str) -> Dict[str, Any]:
     """Extract JSON from text that may contain markdown or other formatting"""
@@ -18,24 +20,45 @@ def extract_json_from_text(text: str) -> Dict[str, Any]:
     except json.JSONDecodeError:
         return {}
 
-def make_openrouter_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.7) -> Dict[str, Any]:
-    """Make a request to the OpenRouter API"""
+
+async def make_openrouter_request(
+        model: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        retries: int = 3,
+        timeout: float = 50.0
+) -> Dict[str, Any]:
+    """Make an async request to OpenRouter API using httpx"""
     api_key = get_openrouter_api_key()
-    
-    response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {api_key}"
-        },
-        json={
-            "model": model,
-            "messages": messages,
-            "temperature": temperature
-        },
-    )
-    
-    response.raise_for_status()
-    return response.json()
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature
+    }
+
+    for attempt in range(1, retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(OPENROUTER_API_URL, headers=headers, json=payload)
+                response.raise_for_status()
+                return response.json()
+
+        except httpx.HTTPStatusError as e:
+            print(f"[Attempt {attempt}] HTTP error: {e.response.status_code} - {e.response.text}")
+        except httpx.RequestError as e:
+            print(f"[Attempt {attempt}] Network error: {str(e)}")
+        except httpx.ReadError as e:
+            print(f"[Attempt {attempt}] Read error: {str(e)}")
+
+        await asyncio.sleep(2)  # backoff between retries
+
+    raise RuntimeError("Failed to fetch response from OpenRouter after retries.")
 
 async def make_streaming_request(model: str, messages: List[Dict[str, str]], temperature: float = 0.5) -> AsyncGenerator[bytes, None]:
     """Make a streaming request to the OpenRouter API"""

@@ -55,7 +55,7 @@ async def generate_chat(payload: ChatRequest) -> ChatResponse:
                 role = "user" if i % 2 == 0 else "assistant"
                 messages.append({"content": payload.last_messages[i], "role": role})
             messages.append({"content": payload.user_prompt, "role": "user"})
-        response_data = make_openrouter_request(
+        response_data = await make_openrouter_request(
             model=model,
             messages=messages,
             temperature=payload.temperature
@@ -108,7 +108,7 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         ]
         
         # Make the API request
-        response_data = make_openrouter_request(
+        response_data = await make_openrouter_request(
             model=model,
             messages=messages,
             temperature=0.5  # Lower temperature for more focused summaries
@@ -192,7 +192,7 @@ async def analyze_chat(payload: AnalysisRequest):
         ]
         
         # Make the API request
-        response_data = make_openrouter_request(
+        response_data = await make_openrouter_request(
             model="google/gemma-3-27b-it",
             messages=messages,
             temperature=0.5  # Lower temperature for more focused analysis
