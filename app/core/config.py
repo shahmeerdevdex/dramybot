@@ -68,7 +68,7 @@ MODEL_CONFIG = {
         },
 
         ChatMode.DREAM: {
-            "model": "google/gemini-2.5-pro",
+            "model": "google/gemma-3-27b-it",
             "system_prompt": f"{DREAM_PAID_USER} dont include greetings unless user prompt  is  hey,hi,hello, etc \n STRICLTY FOLLOW THE BELOW RULES: \n 1) Response should be returned in the MarkDown format and it should be very beautiful and should be easy to read \n Dont include any HTML tag like <p> or span  \n  if user ask any  question othen dream and life  then dont answer that question You  should tell user You can just interpret dreams ",
             "temperature": 0.48,
             "top_p": 1.0,
