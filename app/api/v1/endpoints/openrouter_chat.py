@@ -112,7 +112,7 @@ async def stream_response_from_openrouter(payload: ChatRequest):
         async for chunk in make_streaming_request(model, messages, chat_config["temperature"]):
             yield chunk
     except Exception as e:
-        print("Issue with Stream : ", traceback.format_exc())
+        print("Issue with Stream : ", traceback.print_exc())
         yield f"data: {{\"statusCode\": 500, \"message\": \"{str(e)}\", \"data\": null}}\n\n".encode('utf-8')
         yield b"data: [DONE]\n\n"
 

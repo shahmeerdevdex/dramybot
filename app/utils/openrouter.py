@@ -139,4 +139,4 @@ async def make_streaming_request(model: str, messages: List[Dict[str, str]], tem
                 yield f"data: [DONE]\n\n".encode('utf-8')
         except Exception as e:
 
-            print(f"Issue with Stream : {traceback.format_exc()}")
+            print(f"Issue with Stream : {traceback.print_exc()}")
