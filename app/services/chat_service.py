@@ -399,12 +399,8 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
     """Generate a summary of a dreamer's profile based on Q&A messages"""
     try:
         # Determine the model to use based on user type
-        if payload.model and payload.model.strip() != "":
-            model = payload.model
-        elif payload.user_type == UserType.PAID:
-            model = "google/gemma-3-27b-it"
-        else:
-            model = "google/gemma-3-27b-it"
+
+        model = "openai/chatgpt-4o-latest"
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -427,10 +423,10 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         messages = [
             {
                 "content": system_prompt,
-                "role": "system"
+                "role": "assistant"
             },
             {
-                "content": f"Based on the following questions and answers about a person's profile, generate a concise summary that captures the essence of who they are. Return ONLY a JSON object with a 'summary' field.\n\n{profile_content}",
+                "content": f" Return ONLY a JSON object with a 'summary' field.\n\n{profile_content}",
                 "role": "user"
             }
         ]
@@ -439,7 +435,7 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         response_data = await make_openrouter_request(
             model=model,
             messages=messages,
-            temperature=0.5  # Lower temperature for more focused summary
+            temperature=0.48
         )
         
         # Extract the summary text
