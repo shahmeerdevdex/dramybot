@@ -436,7 +436,7 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         ]
         
         # Make the API request
-        response_data = make_openrouter_request(
+        response_data = await make_openrouter_request(
             model=model,
             messages=messages,
             temperature=0.5  # Lower temperature for more focused summary
