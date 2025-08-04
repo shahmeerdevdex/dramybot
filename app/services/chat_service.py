@@ -78,9 +78,7 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
     """Generate a 2-line summary of chat messages"""
     try:
         # Determine the model based on user type
-        model = payload.model if payload.model else "google/gemma-3-27b-it"
-        if payload.user_type == UserType.PAID and not payload.model:
-            model = "google/gemma-3-27b-it"  # Use a better model for paid users
+        model = "openai/chatgpt-4o-latest"
         
         # Format the messages for the prompt
         formatted_messages = []
@@ -149,7 +147,7 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         
         return SummaryResponse(
             statusCode=200,
-            message="fetch sucessfully",
+            message="Fetched Successfully",
             data=SummaryResponseData(summary=summary)
         )
         
@@ -210,7 +208,7 @@ async def analyze_chat(payload: AnalysisRequest):
             print("analysis is empty")
             return {
                 "statusCode": 400,
-                "message": "Need more context of dream to interpret",
+                "message": "Share a bit more about your dream so we can give you a better summary",
                 "data": {
                     "title":'NA',
                       "dreamDescription": "NA",
@@ -354,7 +352,7 @@ async def analyze_chat(payload: AnalysisRequest):
         print("Exception ", e)
         return {
             "statusCode": 400,
-            "message": f"{e}",
+            "message": f"There is some Issue in Server, Please try again later.",
             "data": {
                 "title": 'NA',
                 "shortText": 'NA',
