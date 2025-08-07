@@ -109,7 +109,8 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         response_data = await make_openrouter_request(
             model=model,
             messages=messages,
-            temperature=0.44  # Lower temperature for more focused summaries
+            temperature=0.44,
+            memory=True# Lower temperature for more focused summaries
         )
         
         # Extract the summary text

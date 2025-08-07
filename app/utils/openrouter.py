@@ -29,7 +29,8 @@ async def make_openrouter_request(
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         retries: int = 3,
-        timeout: float = 50.0
+        timeout: float = 50.0,
+        memory: str = False,
 ) -> Dict[str, Any]:
     """Make an async request to OpenRouter API using httpx"""
     api_key = get_openrouter_api_key()
@@ -38,8 +39,9 @@ async def make_openrouter_request(
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-
-    payload = {
+    payload = ""
+    if memory:
+        payload = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
@@ -50,8 +52,14 @@ async def make_openrouter_request(
         "repetition_penalty": 0.0,  # 0.0 to 2.0, default 1.0
         "min_p": 0.0,  # 0.0 to 1.0, default 0.0
         "top_a": 0.0,  # 0.0 to 1.0, default 0.0
-        "max_tokens": 0,  # optional integer limit
     }
+    else:
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature, # optional integer limit
+        }
+        
 
     for attempt in range(1, retries + 1):
         try:
