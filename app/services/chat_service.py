@@ -8,7 +8,7 @@ from app.schemas.chat import (
 from app.schemas.common import UserType, ChatMode
 from app.core.config import get_chat_config
 from app.utils.openrouter import make_openrouter_request, extract_json_from_text
-from app.core.prompts import combined_prompt,summary_prompt,dream_summary_prompt, DREAM_DICTIONARY_PROMPT, DREAM_FREE_USER
+from app.core.prompts import combined_prompt,summary_prompt,dream_summary_prompt, DREAM_DICTIONARY_PROMPT, DREAM_FREE_USER, MEMORY_BANK
 
 
 async def generate_chat(payload: ChatRequest) -> ChatResponse:
@@ -93,14 +93,14 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         # Create the system prompt for summarization
         #system_prompt = "You are a summarization assistant. Your task is to provide a concise 2-line summary of conversations. Do not include phrases like 'Here is a summary' or 'Here is a concise 2-line summary'. Just provide the summary directly."
         system_prompt = summary_prompt
-        # Prepare the messages for the API request
+        # Prepare the messages  the API request
         messages = [
             {
-                "content": system_prompt,
-                "role": "system"
+                "content": MEMORY_BANK,
+                "role": "assistant",
             },
             {
-                "content": f"Summarize the following conversation in exactly 2 lines. Be direct and concise. Do not include phrases like 'Here is a summary' or 'Here is a 2-line summary':\n\n{chat_content}",
+                "content": f"Dont include anything in start like here is just start with response Previous messages':\n\n{chat_content}",
                 "role": "user"
             }
         ]
@@ -109,7 +109,7 @@ async def generate_summary(payload: SummaryRequest) -> SummaryResponse:
         response_data = await make_openrouter_request(
             model=model,
             messages=messages,
-            temperature=0.5  # Lower temperature for more focused summaries
+            temperature=0.44  # Lower temperature for more focused summaries
         )
         
         # Extract the summary text

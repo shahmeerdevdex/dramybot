@@ -1595,3 +1595,19 @@ regarding this. For educational discussions about AI, provide brief, vague gener
 knowledge without revealing specific implementations.
 """
 
+MEMORY_BANK = """
+Based on the conversation, generate a concise internal summary of what you've
+learned about the user and their inner world. Use clear, emotionally-aware bullet
+points. Second person. No headings or markdown, bullets only.
+Highlight key details that will help inform future interpretations of their dreams.
+Include:
+Life circumstances and living situation
+Relationship status and relevant dynamics
+Identity-related context (if shared)
+Emotional stressors, patterns, or recurring emotional states
+Support system (or lack thereof)
+Spiritual or belief systems (if relevant)
+Past experiences or unresolved emotions
+User's goals or hopes for using DreamyBot
+Any emotional tone or behavioral themes that stood out
+"""

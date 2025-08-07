@@ -42,7 +42,15 @@ async def make_openrouter_request(
     payload = {
         "model": model,
         "messages": messages,
-        "temperature": temperature
+        "temperature": temperature,
+        "top_p": 1.0,  # 0.0 to 1.0, default 1.0
+        "top_k": 0,  # 0 or above, default 0
+        "frequency_penalty": 0.0,  # -2.0 to 2.0, default 0.0
+        "presence_penalty": 0.0,  # -2.0 to 2.0, default 0.0
+        "repetition_penalty": 0.0,  # 0.0 to 2.0, default 1.0
+        "min_p": 0.0,  # 0.0 to 1.0, default 0.0
+        "top_a": 0.0,  # 0.0 to 1.0, default 0.0
+        "max_tokens": 0,  # optional integer limit
     }
 
     for attempt in range(1, retries + 1):
