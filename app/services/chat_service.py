@@ -403,7 +403,7 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         # Format the messages for the prompt
         formatted_messages = []
         for msg in payload.messages:
-            if msg.query and msg.response:
+            if msg.query and msg.response and msg.response != 'Next Question':
                 formatted_messages.append(f"Question: {msg.query}")
                 formatted_messages.append(f"User: {msg.response}")
 
