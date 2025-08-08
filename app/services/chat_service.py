@@ -333,8 +333,7 @@ async def analyze_chat(payload: AnalysisRequest):
             )
         )
 
-        print("response ", response )
-            
+
         return AnalysisResponse(
             statusCode=200,
             message="fetch sucessfully",
@@ -404,10 +403,10 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         # Format the messages for the prompt
         formatted_messages = []
         for msg in payload.messages:
-            if msg.isUser:
-                formatted_messages.append(f"User: {msg.response}")
-            else:
+            if msg.query and msg.response:
                 formatted_messages.append(f"Question: {msg.query}")
+                formatted_messages.append(f"User: {msg.response}")
+
         
         profile_content = "\n".join(formatted_messages)
         
@@ -417,15 +416,19 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         Provide your summary in valid JSON format with this field:
         - summary: A concise summary of the person's profile based on the Q&A
         Ensure your response is ONLY the JSON object, nothing else."""
-        
+        print('profile content : ',profile_content)
         # Prepare the messages for the API request
         messages = [
             {
-                "content": system_prompt,
+                "content": """You are a profile summarization assistant.
+                Your task is to analyze a series of questions and answers about a person's profile and generate a concise, insightful summary that captures the essence of who they are.
+                Provide your summary in valid JSON format with this field:
+                - summary: A concise summary of the person's profile based on the Q&A
+                Ensure your response is ONLY the JSON object, nothing else.""",
                 "role": "assistant"
             },
             {
-                "content": f" Return ONLY a JSON object with a 'summary' field.\n\n{profile_content}",
+                "content": " Return ONLY a JSON object with a 'summary' field example \n { 'summary' : 'There is test'}.\n\n" + profile_content,
                 "role": "user"
             }
         ]
@@ -442,7 +445,6 @@ async def generate_profile_summary(payload: ProfileSummaryRequest) -> ProfileSum
         
         # Extract the JSON from the response
         summary_data = extract_json_from_text(summary_text)
-        
         # Ensure the summary field is present
         if 'summary' not in summary_data:
             summary_data['summary'] = "No summary available for this profile."

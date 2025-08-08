@@ -69,7 +69,6 @@ async def dreamer_questions_stream(payload: DreamerQuestionsRequest):
     messages = [{"role": "system", "content": DREAMER_QUESTIONS_PROMPT}]
     messages.append({"role": "user", "content": f"here is the user message : {payload.user_prompt}"})
     messages.append({"role": "user", "content": f" here are your asked questions and your responses {payload.last_messages}"})
-    print(messages)
     async def generate(messages: list[str]):
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
